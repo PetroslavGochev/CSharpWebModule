@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Test
 {
@@ -30,7 +31,7 @@ namespace Test
                     {
                         money++;
                     }
-                    
+
                 }
             });
 
@@ -53,6 +54,8 @@ namespace Test
             thread2.Join();
             thread3.Join();
             Console.WriteLine(money);
+
+            Console.WriteLine(CountPrimeNumber(0, 100001));
         }
 
         private static void MyThreadMainMethod()
@@ -65,21 +68,28 @@ namespace Test
         private static int CountPrimeNumber(int from, int to)
         {
             int count = 0;
-            for (int i = from; i <= to; i++)
+            Parallel.For(from, to, (i) =>
             {
-                bool isPrime = true;
+
+                bool isPrime = false;
                 for (int div = 2; div < Math.Sqrt(i); div++)
                 {
                     if (i % div == 0)
                     {
-                        isPrime = false;
+                        isPrime = true;
                     }
                 }
                 if (isPrime)
                 {
-                    count++;
+                    lock(new object { })
+                    {
+                        count++;
+                    }
+                  
                 }
-            }
+            
+            });
+            
             return count;
         }
     }

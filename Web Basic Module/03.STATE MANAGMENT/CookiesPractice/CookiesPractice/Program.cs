@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace HttpRequester
+namespace CookiesPractice
 {
-    class StartUp
+    class Program
     {
-
         static async Task Main(string[] args)
         {
             TcpListener tcpListener = new TcpListener(IPAddress.Loopback, 80);
@@ -19,7 +16,7 @@ namespace HttpRequester
             {
                 TcpClient tcpClient = await tcpListener.AcceptTcpClientAsync();
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                Task.Run(()=> ProcessClient(tcpClient));
+                Task.Run(() => ProcessClient(tcpClient));
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
         }
@@ -54,5 +51,3 @@ namespace HttpRequester
         }
     }
 }
-
-

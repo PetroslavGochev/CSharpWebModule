@@ -11,7 +11,7 @@ namespace CookiesPractice
 {
     class Program
     {
-        private static Dictionary<string, int> sessionStore = new Dictionary<string, int>();
+        private static Dictionary<string, Dictionary<DateTime, int>> sessionStore = new Dictionary<string, Dictionary<DateTime, int>>();
         const string NewLine = "\r\n";
         static async Task Main(string[] args)
         {
@@ -26,8 +26,6 @@ namespace CookiesPractice
 
             }
 
-
-
         }
 
         private static async Task ProcessClient(TcpClient tcpClient)
@@ -40,16 +38,22 @@ namespace CookiesPractice
             string request = Encoding.UTF8.GetString(requestBytes, 0, bytesRead);
             var regex = @"sid=(?<value>.+)";
             var sid = Regex.Match(request, regex);
+            var userId = sid.Groups["value"].ToString().Split(";")[0];
+            if (!sessionStore.ContainsKey(userId))
+            {
+                sessionStore.Add(userId, new Dictionary<DateTime, int>());
+                sessionStore[userId].Add(DateTime.Today, 1);
+            }
 
 
-            string responseText = @"<h1>" + sid.Groups["value"].ToString().Split(";")[0] + "</h1>";
+            string responseText = @"<h1>" + sessionStore[userId][DateTime.Today].ToString() + ":views" + " " + DateTime.Now + "</h1>";
             string response = "HTTP/1.0 200 OK" + NewLine +
                               "Server: SoftUniServer/1.0" + NewLine +
                               "Content-Type: text/html" + NewLine +
                               // "Location: https://google.com" + NewLine +
                               // "Content-Disposition: attachment; filename=petroslav.html" + NewLine +
                               //"Set-Cookie: language=bg; user=petroslav; path=/; secure; SameSite=Strict" + NewLine +
-                              (string.IsNullOrWhiteSpace(sid.Groups["value"].ToString().Split(";")[0]) ? "Set-Cookie: sid=" + Guid.NewGuid().ToString()+ NewLine : string.Empty) + 
+                              (string.IsNullOrWhiteSpace(userId) ? "Set-Cookie: sid=" + Guid.NewGuid().ToString()+ NewLine : string.Empty) + 
                               "Content-Lenght: " + responseText.Length + NewLine +
                               NewLine +
                               responseText;

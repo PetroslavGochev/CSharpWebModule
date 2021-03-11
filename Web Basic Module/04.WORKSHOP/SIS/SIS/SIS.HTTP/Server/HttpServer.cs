@@ -61,9 +61,9 @@ namespace SIS.HTTP.Server
                 content = "<h1>Welcome to login page!</h1>";
             }
 
-            byte[] fileContent = Encoding.UTF8.GetBytes(content);
+            byte[] stringContent = Encoding.UTF8.GetBytes(content);
 
-            var response = new HttpResponse(HttpResponseCode.OK, fileContent);
+            var response = new HttpResponse(HttpResponseCode.OK, stringContent);
             response.Headers.Add(new Header("Server", "SoftUniServer/1.0"));
             response.Headers.Add(new Header("Content-Type", "text/html"));            
            

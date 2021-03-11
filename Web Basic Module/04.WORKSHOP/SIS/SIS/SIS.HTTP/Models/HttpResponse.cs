@@ -37,10 +37,10 @@ namespace SIS.HTTP.Models
                HttpVersionType.Http20 => "HTTP/2.0",
                 _ => "HTTP/1.1"
             };
-            responseAsString.AppendLine($"{httpVersionAsString} {(int)this.StatusCode} {this.StatusCode.ToString()}" + HttpConstants.NEW_LINE);
+            responseAsString.Append($"{httpVersionAsString} {(int)this.StatusCode} {this.StatusCode.ToString()}" + HttpConstants.NEW_LINE);
             foreach (var header in this.Headers)
             {
-                responseAsString.AppendLine(header.ToString());
+                responseAsString.Append(header.ToString() + HttpConstants.NEW_LINE);
             }
             responseAsString.Append(HttpConstants.NEW_LINE);
             return responseAsString.ToString();

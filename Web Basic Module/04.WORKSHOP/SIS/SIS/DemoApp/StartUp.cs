@@ -1,5 +1,6 @@
 ﻿using SIS.HTTP.Enumerators;
 using SIS.HTTP.Models;
+using SIS.HTTP.Response;
 using SIS.HTTP.Server;
 using System;
 using System.Collections.Generic;
@@ -35,36 +36,20 @@ namespace DemoApp
 
         private static HttpResponse Contact(HttpRequest httpRequest)
         {
-            string content = "<h1>Welcome to contact page!</h1>";
-            byte[] stringContent = Encoding.UTF8.GetBytes(content);
-            var response = new HttpResponse(HttpResponseCode.OK, stringContent);
-            response.Headers.Add(new Header("Content-Type", "text/html"));
-            return response;
+           return new HtmlResponse("<h1>Welcome to contact page!</h1>");      
         }
 
         private static HttpResponse Index(HttpRequest httpRequest)
         {
-            string content = "<h1>Welcome to home page!</h1><img src='https://www.findupet.com/uploads/petgalleryfile/images/940x640/IMG_20190517_124637.jpg'/>";
-            byte[] stringContent = Encoding.UTF8.GetBytes(content);
-            var response = new HttpResponse(HttpResponseCode.OK, stringContent);
-            response.Headers.Add(new Header("Content-Type", "text/html"));
-            return response;
+            return new HtmlResponse("<h1>Welcome to home page!</h1><img src='https://www.findupet.com/uploads/petgalleryfile/images/940x640/IMG_20190517_124637.jpg'/>");
         }
         private static HttpResponse LoginPage(HttpRequest httpRequest)
         {
-            string content = "<h1>Welcome to login page!</h1>";
-            byte[] stringContent = Encoding.UTF8.GetBytes(content);
-            var response = new HttpResponse(HttpResponseCode.OK, stringContent);
-            response.Headers.Add(new Header("Content-Type", "text/html"));
-            return response;
+            return new HtmlResponse("<h1>Welcome to login page!</h1>");
         }
         private static HttpResponse DoLogin(HttpRequest httpRequest)
         {
-            string content = "<h1>You succsesfully login!</h1>";
-            byte[] stringContent = Encoding.UTF8.GetBytes(content);
-            var response = new HttpResponse(HttpResponseCode.OK, stringContent);
-            response.Headers.Add(new Header("Content-Type", "text/html"));
-            return response;
+            return new HtmlResponse("<h1>You succsesfully login!</h1>");
         }
     }   
 }

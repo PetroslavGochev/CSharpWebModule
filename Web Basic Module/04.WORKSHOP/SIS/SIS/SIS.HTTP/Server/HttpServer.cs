@@ -78,7 +78,7 @@ namespace SIS.HTTP.Server
                 await networkStream.WriteAsync(responseBytes, 0, responseBytes.Length);
                 await networkStream.WriteAsync(httpResponse.Body, 0, httpResponse.Body.Length);
 
-                Console.WriteLine(request);
+                Console.WriteLine($"{request.Method} - {request.Path}");
                 Console.WriteLine(new string('=', 60));
             }
             catch (Exception ex)

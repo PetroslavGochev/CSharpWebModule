@@ -12,6 +12,7 @@ namespace SIS.HTTP.Models
         public HttpRequest(string httpRequestAsString)
         {
             this.Headers = new List<Header>();
+            this.Cookies = new List<Cookie>();
 
             var lines = httpRequestAsString
                 .Split(new string[] { HttpConstants.NEW_LINE }, StringSplitOptions.None);
@@ -64,6 +65,22 @@ namespace SIS.HTTP.Models
                     }
                     var haeder = new Header(headerInfo[0], headerInfo[1]);
                     this.Headers.Add(haeder);
+
+                    if(headerInfo[0] == "Cookie")
+                    {
+                        var cookieAsString = headerInfo[1];
+                        var cookies = cookieAsString
+                            .Split("; ".ToCharArray(),StringSplitOptions.RemoveEmptyEntries);
+
+                        foreach (var cookie in cookies)
+                        {
+                            var cookieParts = cookie.Split("=".ToCharArray(), 2);
+                            if(cookieParts.Length == 2)
+                            {
+                                this.Cookies.Add(new Cookie(cookieParts[0], cookieParts[1]));
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -82,6 +99,7 @@ namespace SIS.HTTP.Models
         public HttpVersionType Version { get; set; }
 
         public IList<Header> Headers { get; set; }
+        public IList<Cookie> Cookies { get; set; }
 
         public string Body { get; set; }
 

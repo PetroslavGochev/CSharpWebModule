@@ -15,11 +15,13 @@ namespace SIS.HTTP.Server
     {
         private readonly TcpListener tcpListener;
         private readonly IList<Route> routeTable;
+        private readonly IDictionary<string, IDictionary<string, string>> session;
 
         public HttpServer(int port, IList<Route> routeTable)
         {
             this.tcpListener = new TcpListener(IPAddress.Loopback, port);
             this.routeTable = routeTable;
+            this.session = new Dictionary<string, IDictionary<string, string>>();
         }
         public async Task ResetAsync()
         {
@@ -64,15 +66,22 @@ namespace SIS.HTTP.Server
                     httpResponse = route.Action(request);
                 }
 
-
                 httpResponse.Headers.Add(new Header("Server", "SoftUniServer/1.0"));
 
-                httpResponse.Cookies.Add(new ResponseCookie("sid", Guid.NewGuid().ToString())
+                var sessionCookie = request.Cookies.FirstOrDefault(c => c.Name == HttpConstants.COOKIE_NAME);
+                if (sessionCookie == null || !this.session.ContainsKey(sessionCookie.Value))
                 {
-                    MaxAge = 3600,
-                    HttpOnly = true,
-                    Secure = true
-                });
+                    var newSessionId = Guid.NewGuid().ToString();
+                    this.session.Add(newSessionId, new Dictionary<string, string>());
+
+                    httpResponse.Cookies.Add(new ResponseCookie(HttpConstants.COOKIE_NAME, Guid.NewGuid().ToString())
+                    {
+                        MaxAge = 30 * 3600,
+                        HttpOnly = true,
+                        Secure = true
+                    });
+                }
+
 
                 byte[] responseBytes = Encoding.UTF8.GetBytes(httpResponse.ToString());
                 await networkStream.WriteAsync(responseBytes, 0, responseBytes.Length);

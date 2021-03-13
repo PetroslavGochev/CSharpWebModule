@@ -51,7 +51,12 @@ namespace SIS.HTTP.Server
                 string requestAsString = Encoding.UTF8.GetString(requestBytes, 0, bytesRead);
 
                 var request = new HttpRequest(requestAsString);
+                var sessionCookie = request.Cookies.FirstOrDefault(c => c.Name == HttpConstants.COOKIE_NAME);
 
+                if(sessionCookie != null && this.session.ContainsKey(sessionCookie.Value))
+                {
+                    request.SessionData = this.session[sessionCookie.Value];
+                }
 
                 var route = this.routeTable
                     .FirstOrDefault(rt => rt.HttpMethod == request.Method && rt.Path == request.Path);
@@ -68,7 +73,7 @@ namespace SIS.HTTP.Server
 
                 httpResponse.Headers.Add(new Header("Server", "SoftUniServer/1.0"));
 
-                var sessionCookie = request.Cookies.FirstOrDefault(c => c.Name == HttpConstants.COOKIE_NAME);
+               
                 if (sessionCookie == null || !this.session.ContainsKey(sessionCookie.Value))
                 {
                     var newSessionId = Guid.NewGuid().ToString();

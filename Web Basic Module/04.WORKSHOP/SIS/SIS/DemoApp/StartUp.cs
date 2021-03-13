@@ -18,20 +18,9 @@ namespace DemoApp
             routeTable.Add(new Route("/users/login", LoginPage, HttpMethodType.Get));
             routeTable.Add(new Route("/users/login", DoLogin, HttpMethodType.Post));
             routeTable.Add(new Route("/contact", Contact, HttpMethodType.Get)); 
-            routeTable.Add(new Route("/favicon.ico", FavIcon, HttpMethodType.Get)); 
-            //Actions:
-            // => response IndexPage()
-            // /favicon.ico => favicon.ico
-            // GET/Contact => response ShowContactFrom()
-            // POST/Contact => response FillConctactFrom()
 
             var httpServer = new HttpServer(80,routeTable);
             await httpServer.StartAsync();
-        }
-
-        private static HttpResponse FavIcon(HttpRequest arg)
-        {
-            throw new NotImplementedException();
         }
 
         private static HttpResponse Contact(HttpRequest httpRequest)

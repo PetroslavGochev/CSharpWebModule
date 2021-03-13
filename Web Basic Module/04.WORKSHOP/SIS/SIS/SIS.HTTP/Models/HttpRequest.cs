@@ -13,6 +13,7 @@ namespace SIS.HTTP.Models
         {
             this.Headers = new List<Header>();
             this.Cookies = new List<Cookie>();
+            //this.SessionData = new Dictionary<string, string>();
 
             var lines = httpRequestAsString
                 .Split(new string[] { HttpConstants.NEW_LINE }, StringSplitOptions.None);
@@ -99,8 +100,10 @@ namespace SIS.HTTP.Models
         public HttpVersionType Version { get; set; }
 
         public IList<Header> Headers { get; set; }
+
         public IList<Cookie> Cookies { get; set; }
 
+        public IDictionary<string,string> SessionData { get; set; }
         public string Body { get; set; }
 
     }

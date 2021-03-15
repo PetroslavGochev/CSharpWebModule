@@ -16,13 +16,16 @@ namespace DemoApp
         {
             var routeTable = new List<Route>();
             routeTable.Add(new Route("/", Index, HttpMethodType.Get));
-            routeTable.Add(new Route("/users/login", LoginPage, HttpMethodType.Get));
-            routeTable.Add(new Route("/users/login", DoLogin, HttpMethodType.Post));
-            routeTable.Add(new Route("/contact", Contact, HttpMethodType.Get)); 
+            routeTable.Add(new Route("/Tweets/Create", CreateTweets, HttpMethodType.Post));
             routeTable.Add(new Route("/favicon.ico", FavIcon, HttpMethodType.Get));  
 
             var httpServer = new HttpServer(80,routeTable);
             await httpServer.StartAsync();
+        }
+
+        private static HttpResponse CreateTweets(HttpRequest httpRequest)
+        {
+            return new HtmlResponse("");
         }
 
         private static HttpResponse FavIcon(HttpRequest arg)
@@ -31,25 +34,11 @@ namespace DemoApp
             return new FileResponse(byteContext,"image/x-icon");
         }
 
-        private static HttpResponse Contact(HttpRequest httpRequest)
-        {
-           return new HtmlResponse("<h1>Welcome to contact page!</h1>");      
-        }
-
         private static HttpResponse Index(HttpRequest httpRequest)
         {
             var username = httpRequest.SessionData.ContainsKey("Username") ?
                 httpRequest.SessionData["Username"] : "Anonymous";
-            return new HtmlResponse($"<h1>Home page.Hello, {username}");
-        }
-        private static HttpResponse LoginPage(HttpRequest httpRequest)
-        {
-            httpRequest.SessionData["Username"] = "Pesho";
-            return new HtmlResponse("<h1>Welcome to login page!</h1>");
-        }
-        private static HttpResponse DoLogin(HttpRequest httpRequest)
-        {
-            return new HtmlResponse("<h1>You succsesfully login!</h1>");
+            return new HtmlResponse($"<form action = '/Tweets/Create' method= 'post'><textarea name = 'tweetName'></textarea><input type = 'submit' /></form>");
         }
     }   
 }

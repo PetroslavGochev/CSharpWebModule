@@ -52,10 +52,20 @@ namespace SIS.HTTP.Server
 
                 var request = new HttpRequest(requestAsString);
                 var sessionCookie = request.Cookies.FirstOrDefault(c => c.Name == HttpConstants.COOKIE_NAME);
+                string newSessionId = null;
 
-                if(sessionCookie != null && this.session.ContainsKey(sessionCookie.Value))
+
+                if (sessionCookie != null && this.session.ContainsKey(sessionCookie.Value))
                 {
                     request.SessionData = this.session[sessionCookie.Value];
+                }
+                else
+                {
+                    newSessionId = Guid.NewGuid().ToString();
+                    var dictionary = new Dictionary<string, string>();
+                    this.session.Add(newSessionId, dictionary);
+                    request.SessionData = dictionary;
+
                 }
 
                 var route = this.routeTable
@@ -73,12 +83,9 @@ namespace SIS.HTTP.Server
 
                 httpResponse.Headers.Add(new Header("Server", "SoftUniServer/1.0"));
 
-               
-                if (sessionCookie == null || !this.session.ContainsKey(sessionCookie.Value))
-                {
-                    var newSessionId = Guid.NewGuid().ToString();
-                    this.session.Add(newSessionId, new Dictionary<string, string>());
 
+                if (newSessionId != null)
+                {
                     httpResponse.Cookies.Add(new ResponseCookie(HttpConstants.COOKIE_NAME, Guid.NewGuid().ToString())
                     {
                         MaxAge = 30 * 3600,

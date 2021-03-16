@@ -1,19 +1,26 @@
-﻿using SIS.HTTP.Enumerators;
+﻿using DemoApp.Data.Model;
+using SIS.HTTP.Enumerators;
 using SIS.HTTP.Models;
 using SIS.HTTP.Response;
 using SIS.HTTP.Server;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DemoApp
 {
-    class StartUp
+    public static class StartUp
     {
-        static async Task Main(string[] args)
+        private static ApplicationDbContext db = new ApplicationDbContext();
+        static async Task Main()
         {
+            //var db = new ApplicationDbContext();
+            db.Database.EnsureCreated();
+
+
             var routeTable = new List<Route>();
             routeTable.Add(new Route("/", Index, HttpMethodType.Get));
             routeTable.Add(new Route("/Tweets/Create", CreateTweets, HttpMethodType.Post));
@@ -25,7 +32,15 @@ namespace DemoApp
 
         private static HttpResponse CreateTweets(HttpRequest httpRequest)
         {
-            return new HtmlResponse("");
+            db.Tweets.Add(new Tweet()
+            {
+                CreatedOn = DateTime.UtcNow,
+                Creator = httpRequest.FormData["creator"],
+                Content = httpRequest.FormData["tweetName"]
+            });
+            db.SaveChanges();
+
+            return new RedirectResponse("/");
         }
 
         private static HttpResponse FavIcon(HttpRequest arg)
@@ -38,7 +53,24 @@ namespace DemoApp
         {
             var username = httpRequest.SessionData.ContainsKey("Username") ?
                 httpRequest.SessionData["Username"] : "Anonymous";
-            return new HtmlResponse($"<form action = '/Tweets/Create' method= 'post'><textarea name = 'tweetName'></textarea><input type = 'submit' /></form>");
+
+            var tweets = db.Tweets.Select(t => new
+            {
+                t.CreatedOn.Date,
+                t.Creator,
+                t.Content
+            }).ToArray();
+
+            StringBuilder htmlBuilder = new StringBuilder();
+            htmlBuilder.Append("<table><tr><th>Date</th><th>Creator</th><th>Content</th></tr>");
+            foreach (var tweet in tweets)
+            {
+                htmlBuilder.Append($"<tr><td>{tweet.Date}</td><td>{tweet.Creator}</td><td>{tweet.Content}</td></tr>");
+            }
+            htmlBuilder.Append("</table>");
+            htmlBuilder.Append($"<form action = '/Tweets/Create' method= 'post'><input name='creator'/><br/><textarea name = 'tweetName'></textarea><br/><input type = 'submit' /></form>");
+
+            return new HtmlResponse(htmlBuilder.ToString());
         }
     }   
 }

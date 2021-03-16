@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.Web;
 
 namespace SIS.HTTP.Models
 {
@@ -13,14 +14,15 @@ namespace SIS.HTTP.Models
         {
             this.Headers = new List<Header>();
             this.Cookies = new List<Cookie>();
-            //this.SessionData = new Dictionary<string, string>();
+            this.SessionData = new Dictionary<string, string>();
+            this.FormData = new Dictionary<string, string>();
 
             var lines = httpRequestAsString
                 .Split(new string[] { HttpConstants.NEW_LINE }, StringSplitOptions.None);
 
             var httpHeaderInfo = lines[0].Split(' ');
-          
-            if(httpHeaderInfo.Length != 3)
+
+            if (httpHeaderInfo.Length != 3)
             {
                 throw new HttpExceptions("Invalid HTTP header line");
             }
@@ -60,23 +62,23 @@ namespace SIS.HTTP.Models
                 {
                     var headerInfo = lines[i]
                         .Split(": ".ToCharArray(), 2, StringSplitOptions.None);
-                    if(headerInfo.Length != 2)
+                    if (headerInfo.Length != 2)
                     {
                         throw new HttpExceptions($"Invalid header: {lines[i]}");
                     }
                     var haeder = new Header(headerInfo[0], headerInfo[1]);
                     this.Headers.Add(haeder);
 
-                    if(headerInfo[0] == "Cookie")
+                    if (headerInfo[0] == "Cookie")
                     {
                         var cookieAsString = headerInfo[1];
                         var cookies = cookieAsString
-                            .Split("; ".ToCharArray(),StringSplitOptions.RemoveEmptyEntries);
+                            .Split("; ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
                         foreach (var cookie in cookies)
                         {
                             var cookieParts = cookie.Split("=".ToCharArray(), 2);
-                            if(cookieParts.Length == 2)
+                            if (cookieParts.Length == 2)
                             {
                                 this.Cookies.Add(new Cookie(cookieParts[0], cookieParts[1]));
                             }
@@ -87,11 +89,24 @@ namespace SIS.HTTP.Models
                 {
                     bb.AppendLine(lines[i]);
                 }
+
             }
             if (!String.IsNullOrEmpty(bb.ToString()))
             {
                 this.Body = bb.ToString();
             }
+            //creator = Petroslav & tweetName = Hello
+            this.Body = HttpUtility.UrlDecode(bb.ToString().TrimEnd('\r', '\n'));
+            var bodyParts = this.Body.Split("&".ToCharArray(),StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var bodyPart in bodyParts)
+            {
+                var parameter = bodyPart.Split("=".ToCharArray(), 2);
+                this.FormData.Add(
+                   HttpUtility.UrlDecode(parameter[0]),
+                   HttpUtility.UrlDecode(parameter[1]));
+            }
+
         }
         public HttpMethodType Method { get; set; }
 
@@ -103,8 +118,11 @@ namespace SIS.HTTP.Models
 
         public IList<Cookie> Cookies { get; set; }
 
-        public IDictionary<string,string> SessionData { get; set; }
+        public IDictionary<string, string> SessionData { get; set; }
+
         public string Body { get; set; }
+
+        public IDictionary<string, string> FormData { get; set; }
 
     }
 }

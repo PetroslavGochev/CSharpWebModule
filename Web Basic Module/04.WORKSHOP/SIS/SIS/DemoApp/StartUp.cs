@@ -2,34 +2,29 @@
 using SIS.HTTP.Enumerators;
 using SIS.HTTP.Models;
 using SIS.HTTP.Response;
-using SIS.HTTP.Server;
+using SIS.MvcFramework;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace DemoApp
 {
-    public static class StartUp
+    public class Startup : IMvcApplication
     {
         private static ApplicationDbContext db = new ApplicationDbContext();
-        static async Task Main()
+        public void Configure(IList<Route> routeTable)
         {
-            //var db = new ApplicationDbContext();
-            db.Database.EnsureCreated();
-
-
-            var routeTable = new List<Route>();
             routeTable.Add(new Route("/", Index, HttpMethodType.Get));
             routeTable.Add(new Route("/Tweets/Create", CreateTweets, HttpMethodType.Post));
-            routeTable.Add(new Route("/favicon.ico", FavIcon, HttpMethodType.Get));  
-
-            var httpServer = new HttpServer(80,routeTable);
-            await httpServer.StartAsync();
+            routeTable.Add(new Route("/favicon.ico", FavIcon, HttpMethodType.Get));
         }
 
+        public void ConfigureServices()
+        {    
+            db.Database.EnsureCreated();
+        }
         private static HttpResponse CreateTweets(HttpRequest httpRequest)
         {
             db.Tweets.Add(new Tweet()
@@ -46,7 +41,7 @@ namespace DemoApp
         private static HttpResponse FavIcon(HttpRequest arg)
         {
             var byteContext = File.ReadAllBytes("wwwroot/favicon.ico");
-            return new FileResponse(byteContext,"image/x-icon");
+            return new FileResponse(byteContext, "image/x-icon");
         }
 
         private static HttpResponse Index(HttpRequest httpRequest)
@@ -72,5 +67,6 @@ namespace DemoApp
 
             return new HtmlResponse(htmlBuilder.ToString());
         }
-    }   
+    }
+}
 }

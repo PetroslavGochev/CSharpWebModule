@@ -1,6 +1,8 @@
-﻿namespace SulsApp.Controllers
+﻿using SIS.MvcFramework;
+
+namespace SulsApp.Controllers
 {
-    public class SubmissionsController
+    public class SubmissionsController: Controller
     {
     }
 }

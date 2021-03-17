@@ -1,0 +1,11 @@
+﻿<h1>Hello!</h1>
+@if(DateTime.UtcNoe.Year == 2000)
+{
+    @for(int i = 1; i <= 10; i++)
+    {
+        @if(i % 3 == 0)
+        {
+            <p>@i</p><span>DateTime.UtcNow.Year</span>
+        }
+    }
+}

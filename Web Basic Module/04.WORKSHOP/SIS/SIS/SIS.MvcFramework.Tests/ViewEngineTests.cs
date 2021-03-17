@@ -19,8 +19,8 @@ namespace SIS.MvcFramework.Tests
                 Name = "Petroslav",
                 Numbers = new List<int>() { 1, 10, 100, 1000 }
             };
-            var testContent = File.ReadAllText("");
-            var expectedResultContent = File.ReadAllText($"{testName}.Expected.html");
+            var testContent = File.ReadAllText($"ViewTests/{testName}.html");
+            var expectedResultContent = File.ReadAllText($"ViewTests/{testName}Expected.html");
 
             IViewEngine viewEngine = new ViewEngine();
             var actionResult = viewEngine.GetHtml(testContent, viewModel);

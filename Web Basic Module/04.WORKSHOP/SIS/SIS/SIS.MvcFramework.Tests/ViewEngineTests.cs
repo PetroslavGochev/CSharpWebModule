@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using Xunit;
@@ -15,18 +14,37 @@ namespace SIS.MvcFramework.Tests
         {
             var viewModel = new TestViewModel()
             {
-                Year = 2020,
                 Name = "Petroslav",
-                Numbers = new List<int>() { 1, 10, 100, 1000 }
+                Year = 2021,
+                Numbers = new List<int> { 1, 10, 100, 1000, 10000 }
             };
-            var testContent = File.ReadAllText($"ViewTests/{testName}.html");
-            var expectedResultContent = File.ReadAllText($"ViewTests/{testName}Expected.html");
+
+            var viewContent = File.ReadAllText($"ViewTests/{testName}.html");
+            var expectedResult = File.ReadAllText($"ViewTests/{testName}Expected.html");
 
             IViewEngine viewEngine = new ViewEngine();
-            var actionResult = viewEngine.GetHtml(testContent, viewModel);
-
-            Assert.Equal(actionResult, expectedResultContent);
+            var actualResult = viewEngine.GetHtml(viewContent, viewModel, "123");
+            ;
+            Assert.Equal(expectedResult, actualResult);
         }
-     
+        [Fact]
+        public void TestGetHtml()
+        {
+            var viewModel = new List<int> { 1, 2, 3 };
+
+            var viewContent = @"foreach(var num in Model)
+{
+<p>@num</p>
+}";
+            var expectedResult = @"
+<p>1</p>
+<p>2</p>
+<p>3</p>
+";
+
+            IViewEngine viewEngine = new ViewEngine();
+            var actualResult = viewEngine.GetHtml(viewContent, viewModel, null);
+            Assert.Equal(expectedResult, actualResult);
+        }
     }
 }

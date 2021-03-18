@@ -1,8 +1,9 @@
-﻿<h1>Hello, @Model.Name</h1>
-<p>It is @Model.Year year!</p>
+﻿﻿<h1>Hello, @Model.Name</h1>
+<p>It @Model.Year year!</p>
 <ul>
-    @foreach(var num in @Model.Numebers)
+    @foreach(var num in Model.Numbers)
     {
     <li>@Math.Log10(num)</li>
     }
 </ul>
+<p>@User</p>

@@ -1,6 +1,8 @@
 ﻿using SIS.HTTP.Models;
 using SIS.HTTP.Response;
 using SIS.MvcFramework;
+using SulsApp.ViewModels;
+using System;
 using System.IO;
 
 namespace SulsApp.Controllers
@@ -9,7 +11,12 @@ namespace SulsApp.Controllers
     {
         public  HttpResponse Index(HttpRequest request)
         {
-            return this.View();
+            var viewModel = new IndexViewModel()
+            {
+                Message = "Welcome to SULS Platform!",
+                Year = DateTime.UtcNow.Year,
+            };
+            return this.View(viewModel);
         }
     }
 }

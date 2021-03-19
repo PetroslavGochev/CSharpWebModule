@@ -41,7 +41,7 @@ namespace SIS.MvcFramework
             }}";
 
             IView view = GetInstanceFromCode(code, model);
-            string html = view.GetHtml(model, user);
+            string html = view.GetHtml(model,user);
             return html;
         }
         private string GetGenericTypeFullName(Type modelType)

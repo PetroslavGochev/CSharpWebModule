@@ -5,7 +5,7 @@ namespace SIS.HTTP.Models
 {
     public class Route
     {
-        public Route(string path, Func<HttpRequest, HttpResponse> action, HttpMethodType httpMethod)
+        public Route(HttpMethodType httpMethod,string path, Func<HttpRequest, HttpResponse> action )
         {
             this.Path = path;
             this.HttpMethod = httpMethod;
@@ -16,5 +16,10 @@ namespace SIS.HTTP.Models
         public HttpMethodType HttpMethod { get; set; }
 
         public Func<HttpRequest,HttpResponse> Action { get; set; }
+
+        public override string ToString()
+        {
+            return $"{this.HttpMethod} => {this.Path}";
+        }
     }
 }

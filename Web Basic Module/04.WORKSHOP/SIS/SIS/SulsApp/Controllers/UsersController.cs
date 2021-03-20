@@ -11,23 +11,23 @@ namespace SulsApp.Controllers
     {
   
         [HttpGet]
-        public HttpResponse Login(HttpRequest httpRequest)
+        public HttpResponse Login()
         {
             return this.View();
         }
         [HttpPost("/Users/Login")]
-        public HttpResponse DoLogin(HttpRequest httpRequest)
+        public HttpResponse DoLogin()
         {
             return this.View();
         }
         [HttpGet]
-        public HttpResponse Register(HttpRequest httpRequest)
+        public HttpResponse Register()
         {
             return this.View();
 
         }
         [HttpPost("/Users/Register")]
-        public HttpResponse DoRegister(HttpRequest httpRequest)
+        public HttpResponse DoRegister()
         {
             return this.View();
 

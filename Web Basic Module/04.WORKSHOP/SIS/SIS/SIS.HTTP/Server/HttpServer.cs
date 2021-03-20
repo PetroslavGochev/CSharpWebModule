@@ -69,7 +69,7 @@ namespace SIS.HTTP.Server
                 }
 
                 var route = this.routeTable
-                    .FirstOrDefault(rt => rt.HttpMethod == request.Method && rt.Path == request.Path);
+                    .FirstOrDefault(rt => rt.HttpMethod  == request.Method && string.Compare(rt.Path,request.Path,true) == 0);
                 HttpResponse httpResponse;
 
                 if (route == null)

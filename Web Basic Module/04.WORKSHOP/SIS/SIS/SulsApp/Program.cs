@@ -12,8 +12,8 @@ namespace SulsApp
     public static class Program
     {
         static async Task Main()
-        {
-            await WebHost.StartAsync(new Startup());
+        { 
+                await WebHost.StartAsync(new Startup());          
         }
     }
 }

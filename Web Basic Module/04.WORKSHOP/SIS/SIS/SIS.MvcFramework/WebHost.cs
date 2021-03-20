@@ -19,6 +19,7 @@ namespace SIS.MvcFramework
             var routeTable = new List<Route>();
             application.ConfigureServices();
             application.Configure(routeTable);
+            AutoRegisterActionRoutes(routeTable, application);
             AutoRegisterRoutes(routeTable, application);
             foreach (var route in routeTable)
             {
@@ -60,7 +61,7 @@ namespace SIS.MvcFramework
                       {
                           var controller = Activator.CreateInstance(type) as Controller;
                           controller.Request = request;
-                          var response = method.Invoke(controller, new object[] { }) as HttpResponse;
+                          var response = method.Invoke(controller, new object[] { request}) as HttpResponse;
                           return response;
                       }));
                 }

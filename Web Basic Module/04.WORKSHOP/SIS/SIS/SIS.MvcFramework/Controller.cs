@@ -1,45 +1,9 @@
-﻿//using SIS.HTTP.Models;
-//using SIS.HTTP.Response;
-//using System.IO;
-//using System.Runtime.CompilerServices;
-
-//namespace SIS.MvcFramework
-//{
-//    public abstract class Controller
-//    {
-//        private const string RENDER_BODY = "@RenderBody()";
-//        private const string VIEWS = "Views/";
-//        private const string LAYOUT = "Shared/_Layout";
-//        private const string HTML = ".html";
-//        private const string CONTROLLER = "Controller";
-
-//      protected HttpResponse View<T>(T viewModel = null, [CallerMemberName] string viewName = null)
-//            where T : class
-//        {
-//            IViewEngine viewEngine = new ViewEngine();
-//            var typeName = this.GetType().Name/*.Replace(CONTROLLER, string.Empty)*/;
-//            var controllerName = typeName.Substring(0, typeName.Length - 10);
-//            var html = File.ReadAllText(VIEWS + controllerName + "/" + viewName + HTML);
-//            html = viewEngine.GetHtml(html, null);
-
-//            var layout = File.ReadAllText(VIEWS + LAYOUT + HTML);
-//            var bodyWithLayout = layout.Replace(RENDER_BODY, html);
-//            return new HtmlResponse(bodyWithLayout);
-//        }
-//        protected HttpResponse View([CallerMemberName]string viewName = null)
-//        {
-//            return this.View<object>(null, viewName);
-//        }
-//    }
-//}
-using System;
-using SIS.HTTP;
-using SIS.HTTP.Response;
+﻿using SIS.HTTP.Response;
 using System.IO;
 using System.Runtime.CompilerServices;
+using SIS.HTTP.Models;
 using System.Security.Cryptography;
 using System.Text;
-using SIS.HTTP.Models;
 
 namespace SIS.MvcFramework
 {
@@ -72,6 +36,20 @@ namespace SIS.MvcFramework
             return new RedirectResponse(url);
         }
 
+        protected string Hash(string input)
+        {
+
+            var crypt = new SHA256Managed();
+            var hash = new StringBuilder();
+            byte[] crypto = crypt.ComputeHash(Encoding.UTF8.GetBytes(input));
+            foreach (byte theByte in crypto)
+            {
+                hash.Append(theByte.ToString("x2"));
+            }
+            return hash.ToString();
+
+        }
+
         private HttpResponse ViewByName<T>(string viewPath, object viewModel)
         {
             IViewEngine viewEngine = new ViewEngine();
@@ -84,24 +62,5 @@ namespace SIS.MvcFramework
             bodyWithLayout = viewEngine.GetHtml(bodyWithLayout, viewModel);
             return new HtmlResponse(bodyWithLayout);
         }
-
-        //protected void SignIn(string userId)
-        //{
-        //    this.Request.SessionData["UserId"] = userId;
-
-        //}
-
-        //protected void SignOut()
-        //{
-        //    this.Request.SessionData["UserId"] = null;
-        //}
-        //protected bool IsUserLoggedIn()
-        //{
-        //    return this.User != null;
-        //}
-
-        //public string User => this.Request.SessionData.ContainsKey("UserId") ? this.Request.SessionData["UserId"] : null;
-
-
     }
 }

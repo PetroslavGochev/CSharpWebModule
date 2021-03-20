@@ -9,70 +9,29 @@ namespace SulsApp.Controllers
 {
     public class UsersController : Controller
     {
-        private readonly object usersService;
-
-        public HttpResponse Login(HttpRequest request)
+  
+        [HttpGet]
+        public HttpResponse Login(HttpRequest httpRequest)
         {
             return this.View();
         }
-
-        public HttpResponse Register(HttpRequest request)
+        [HttpPost("/Users/Login")]
+        public HttpResponse DoLogin(HttpRequest httpRequest)
         {
             return this.View();
         }
-
-        [HttpPost]
-        public HttpResponse Register(RegisterInputModel input)
+        [HttpGet]
+        public HttpResponse Register(HttpRequest httpRequest)
         {
+            return this.View();
 
-            if (input.Password != input.ConfirmedPassword)
-            {
-                return this.Error("Passwords should be the same.");
-            }
-
-            if (input.Username?.Length < 5 || input.Username?.Length > 20)
-            {
-                return this.Error("Username should be between 5 and 20 characters.");
-            }
-            if (input.Password?.Length < 6 || input.Password?.Length > 20)
-            {
-                return this.Error("Password should be between 6 and 20 characters.");
-            }
-
-            if (!this.IsValid(input.Email))
-            {
-                return this.Error("Invalid email address.");
-            }
-
-            if (this.usersService.IsUsernameUsed(input.Username))
-            {
-                return this.Error("This username already exist!");
-            }
-
-            if (this.usersService.IsEmailUsed(input.Email))
-            {
-                return this.Error("This email already used!");
-            }
-
-            this.usersService.CreateUser(input.Username, input.Email, input.Password);
-
-            this.logger.Log("New user: " + input.Username);
-
-            return this.Redirect("/Users/Login");
+        }
+        [HttpPost("/Users/Register")]
+        public HttpResponse DoRegister(HttpRequest httpRequest)
+        {
+            return this.View();
 
         }
 
-        private bool IsValid(string emailAddress)
-        {
-            try
-            {
-                MailAddress m = new MailAddress(emailAddress);
-                return true;
-            }
-            catch (FormatException)
-            {
-                return false;
-            }
-        }
     }
 }

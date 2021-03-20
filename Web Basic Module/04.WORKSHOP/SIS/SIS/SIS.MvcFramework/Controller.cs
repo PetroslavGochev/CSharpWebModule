@@ -77,30 +77,30 @@ namespace SIS.MvcFramework
             IViewEngine viewEngine = new ViewEngine();
 
             var html = File.ReadAllText(viewPath);
-            html = viewEngine.GetHtml(html, viewModel,this.User);
+            html = viewEngine.GetHtml(html, viewModel);
 
             var layout = File.ReadAllText("Views/Shared/_Layout.html");
             var bodyWithLayout = layout.Replace("@RenderBody()", html);
-            bodyWithLayout = viewEngine.GetHtml(bodyWithLayout, viewModel,this.User);
+            bodyWithLayout = viewEngine.GetHtml(bodyWithLayout, viewModel);
             return new HtmlResponse(bodyWithLayout);
         }
 
-        protected void SignIn(string userId)
-        {
-            this.Request.SessionData["UserId"] = userId;
+        //protected void SignIn(string userId)
+        //{
+        //    this.Request.SessionData["UserId"] = userId;
 
-        }
+        //}
 
-        protected void SignOut()
-        {
-            this.Request.SessionData["UserId"] = null;
-        }
-        protected bool IsUserLoggedIn()
-        {
-            return this.User != null;
-        }
+        //protected void SignOut()
+        //{
+        //    this.Request.SessionData["UserId"] = null;
+        //}
+        //protected bool IsUserLoggedIn()
+        //{
+        //    return this.User != null;
+        //}
 
-        public string User => this.Request.SessionData.ContainsKey("UserId") ? this.Request.SessionData["UserId"] : null;
+        //public string User => this.Request.SessionData.ContainsKey("UserId") ? this.Request.SessionData["UserId"] : null;
 
 
     }

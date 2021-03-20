@@ -13,12 +13,12 @@ namespace SIS.MvcFramework
         {
             this.errors = errors;
         }
-        public string GetHtml(object model, string user)
+        public string GetHtml(object model)
         {
             StringBuilder html = new StringBuilder();
             html.AppendLine("<h1>View compilation errors:</h1>");
             html.AppendLine("<ul>");
-            foreach (var error in errors)
+            foreach (var error in this.errors)
             {
                 html.AppendLine($"<li>{error}</li>");
             }

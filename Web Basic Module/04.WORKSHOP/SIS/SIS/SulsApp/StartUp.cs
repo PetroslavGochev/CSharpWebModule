@@ -10,6 +10,7 @@ namespace SulsApp
         public void ConfigureServices(IServiceCollection serviceCollection)
         {
             serviceCollection.Add<IUserService, UserService>();
+            serviceCollection.Add<IProblemService, ProblemService>();
         }
         public void Configure(IList<Route> routeTable)
         {

@@ -1,6 +1,6 @@
-﻿using SIS.HTTP.Models;
+﻿using SIS.HTTP.Logging;
+using SIS.HTTP.Models;
 using SIS.MvcFramework;
-using SulsApp.Data.Model;
 using SulsApp.Services;
 using System;
 using System.Net.Mail;

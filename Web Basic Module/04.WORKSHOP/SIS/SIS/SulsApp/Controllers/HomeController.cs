@@ -1,10 +1,8 @@
-﻿using SIS.HTTP.Models;
-using SIS.HTTP.Response;
+﻿using SIS.HTTP.Logging;
+using SIS.HTTP.Models;
 using SIS.MvcFramework;
-using SulsApp.Services;
 using SulsApp.ViewModels;
 using System;
-using System.IO;
 
 namespace SulsApp.Controllers
 {

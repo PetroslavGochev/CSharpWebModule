@@ -1,13 +1,22 @@
 ﻿using SIS.HTTP.Models;
 using SIS.MvcFramework;
 using SulsApp.Data.Model;
+using SulsApp.Services;
 using System;
 using System.Net.Mail;
 
 namespace SulsApp.Controllers
-{
+{   
     public class UsersController : Controller
-    { 
+    {
+        private IUserService userService;
+        private readonly ILogger logger;
+
+        public UsersController(IUserService userService,ILogger logger)
+        {
+            this.userService = userService;
+            this.logger = logger;
+        }
         [HttpGet]
         public HttpResponse Login()
         {
@@ -16,7 +25,18 @@ namespace SulsApp.Controllers
         [HttpPost("/Users/Login")]
         public HttpResponse DoLogin()
         {
-            return this.View();
+            string username = this.Request.FormData["username"];
+            string password = this.Request.FormData["password"];
+
+            var userId = this.userService.GetUserId(username, password);
+
+            if(userId == null)
+            {
+                return this.Redirect("/Users/Login");
+            }
+            this.SignIn(userId);
+            this.logger.Log("User logged in: " + username);
+            return this.Redirect("/");
         }
         [HttpGet]
         public HttpResponse Register()
@@ -49,21 +69,17 @@ namespace SulsApp.Controllers
             {
                 return this.Error("<h1>Username should be between 5 and 20 characters.</h1>");
             }
+            this.userService.CreateUser(username, email, password);
+            this.logger.Log("New user: " + username);
+          
+            return this.Redirect("/Users/Login");
+        }
 
-            var user = new User()
-            {
-                Email = email,
-                Password = this.Hash(password),
-                Username = username,
-            };
-
-            var db = new SulsAppDbContext();
-            db.Users.Add(user);
-            db.SaveChanges();
-
-            //TODO: Log In...
-
+        public HttpResponse LogOut()
+        {
+            this.SignOut();
             return this.Redirect("/");
+               
         }
 
         private bool IsValid(string emailAddress)

@@ -8,13 +8,13 @@ namespace SulsApp
     {
         public void Configure(IList<Route> routeTable)
         {
-           
+            var db = new SulsAppDbContext();
+            db.Database.EnsureCreated();
         }
 
         public void ConfigureServices()
         {
-            var db = new SulsAppDbContext();
-            db.Database.EnsureCreated();
+            
         }
     }
 }

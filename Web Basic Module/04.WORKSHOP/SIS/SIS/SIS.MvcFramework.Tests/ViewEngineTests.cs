@@ -44,6 +44,7 @@ namespace SIS.MvcFramework.Tests
 
             IViewEngine viewEngine = new ViewEngine();
             var actualResult = viewEngine.GetHtml(viewContent, viewModel);
+            ;
             Assert.Equal(expectedResult, actualResult);
         }
     }

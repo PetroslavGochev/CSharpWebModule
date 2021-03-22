@@ -11,7 +11,7 @@ namespace SIS.MvcFramework
 {
     public partial class ViewEngine : IViewEngine
     {
-        public string GetHtml(string templateHtml, object model)
+        public string GetHtml(string templateHtml, object model,string user)
         {
             var methodCode = PrepareCSharpCode(templateHtml);
             var modelType = model?.GetType() ?? typeof(object);
@@ -29,10 +29,11 @@ namespace SIS.MvcFramework
             {{
                  public class AppViewCode : IView
                  {{
-                     public string GetHtml(object model)
+                     public string GetHtml(object model,string user)
                       {{
-                         
-                          var html= new StringBuilder();
+                         var Model = model as {typeName};
+                         var User = user;
+                          var html= new StringBuilder();                         
                           {methodCode}
                           return html.ToString();
                       }} 
@@ -40,7 +41,7 @@ namespace SIS.MvcFramework
             }}";
 
             IView view = GetInstanceFromCode(code, model);
-            string html = view.GetHtml(model);
+            string html = view.GetHtml(model,user);
             return html;
         }
         private string GetGenericTypeFullName(Type modelType)

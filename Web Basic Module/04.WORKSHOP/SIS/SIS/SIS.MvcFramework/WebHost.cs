@@ -31,20 +31,20 @@ namespace SIS.MvcFramework
         }
         private static void AutoRegisterActionRoutes(IList<Route> routeTable, IMvcApplication application)
         {
-            var types = application.GetType().Assembly.GetTypes()
+            var controllers = application.GetType().Assembly.GetTypes()
                 .Where(type => type.IsSubclassOf(typeof(Controller)) && !type.IsAbstract);
-            foreach (var type in types)
+            foreach (var controller in controllers)
             {
-                var methods = type.GetMethods()
+                var actions = controller.GetMethods()
                     .Where(x => !x.IsSpecialName
                                 && !x.IsConstructor
                                 && x.IsPublic
-                                && x.DeclaringType == type);
-                foreach (var method in methods)
+                                && x.DeclaringType == controller);
+                foreach (var action in actions)
                 {
 
-                    string url = "/" + type.Name.Replace("Controller", string.Empty) + "/" + method.Name;
-                    var attribute = method.GetCustomAttributes()
+                    string url = "/" + controller.Name.Replace("Controller", string.Empty) + "/" + action.Name;
+                    var attribute = action.GetCustomAttributes()
                             .FirstOrDefault(x => x.GetType()
                                 .IsSubclassOf(typeof(HttpMethodAttribute)))
                         as HttpMethodAttribute;
@@ -57,17 +57,19 @@ namespace SIS.MvcFramework
                             url = attribute.Url;
                         }
                     }
-                    routeTable.Add(new Route(httpActionType, url, (request) =>
-                      {
-                          var controller = Activator.CreateInstance(type) as Controller;
-                          controller.Request = request;
-                          var response = method.Invoke(controller, new object[] { request}) as HttpResponse;
-                          return response;
-                      }));
+                    routeTable.Add(new Route(httpActionType, url, (request) => InvokeAction(request, controller, action)));
                 }
-                
+
             }
         }
+        private static HttpResponse InvokeAction(HttpRequest request, Type controllerType, MethodInfo action)
+        {
+            var controller = Activator.CreateInstance(controllerType) as Controller;
+            controller.Request = request;
+            var response = action.Invoke(controller, new object[] { request }) as HttpResponse;
+            return response;
+        }
+
         private static void AutoRegisterRoutes(List<Route> routeTable, IMvcApplication application)
         {
             var staticFiles = Directory.GetFiles("wwwroot", "*", SearchOption.AllDirectories);
@@ -97,4 +99,6 @@ namespace SIS.MvcFramework
         }
     }
 }
+
+
 

@@ -23,11 +23,8 @@ namespace SulsApp.Controllers
             return this.View();
         }
         [HttpPost("/Users/Login")]
-        public HttpResponse DoLogin()
+        public HttpResponse DoLogin(string username,string password)
         {
-            string username = this.Request.FormData["username"];
-            string password = this.Request.FormData["password"];
-
             var userId = this.userService.GetUserId(username, password);
 
             if(userId == null)

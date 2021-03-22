@@ -1,4 +1,5 @@
 ﻿using SIS.HTTP.Enumerators;
+using SIS.HTTP.Logging;
 using SIS.HTTP.Models;
 using SIS.HTTP.Response;
 using SIS.HTTP.Server;
@@ -16,20 +17,31 @@ namespace SIS.MvcFramework
     {
         public static async Task StartAsync(IMvcApplication application)
         {
-            var routeTable = new List<Route>();
-            application.ConfigureServices();
+            IList<Route> routeTable = new List<Route>();
+            IServiceCollection serviceCollection = new ServiceCollection();
+            serviceCollection.Add<ILogger, ConsoleLogger>();
+
+            application.ConfigureServices(serviceCollection);
             application.Configure(routeTable);
-            AutoRegisterActionRoutes(routeTable, application);
+
+
+            AutoRegisterActionRoutes(routeTable, application,serviceCollection);
             AutoRegisterRoutes(routeTable, application);
+
+            var logger = serviceCollection.CreateInstance<ILogger>();
+
+            logger.Log("Registered routes:");
             foreach (var route in routeTable)
             {
-                Console.WriteLine(route);
+                logger.Log(route.ToString());
             }
+            logger.Log(string.Empty);
+            logger.Log("Requests:");
 
-            var httpServer = new HttpServer(80, routeTable);
+            var httpServer = new HttpServer(80, routeTable,logger);
             await httpServer.StartAsync();
         }
-        private static void AutoRegisterActionRoutes(IList<Route> routeTable, IMvcApplication application)
+        private static void AutoRegisterActionRoutes(IList<Route> routeTable, IMvcApplication application,IServiceCollection serviceCollection)
         {
             var controllers = application.GetType().Assembly.GetTypes()
                 .Where(type => type.IsSubclassOf(typeof(Controller)) && !type.IsAbstract);
@@ -57,20 +69,39 @@ namespace SIS.MvcFramework
                             url = attribute.Url;
                         }
                     }
-                    routeTable.Add(new Route(httpActionType, url, (request) => InvokeAction(request, controller, action)));
+                    routeTable.Add(new Route(httpActionType, url, (request) => InvokeAction(request,serviceCollection, controller, action)));
                 }
 
             }
         }
-        private static HttpResponse InvokeAction(HttpRequest request, Type controllerType, MethodInfo action)
+        private static HttpResponse InvokeAction(HttpRequest request,IServiceCollection serviceCollection,Type controllerType, MethodInfo actionMethod)
         {
-            var controller = Activator.CreateInstance(controllerType) as Controller;
+            var controller = serviceCollection.CreateInstance(controllerType) as Controller;
             controller.Request = request;
-            var response = action.Invoke(controller, new object[] { request }) as HttpResponse;
+
+            var actionParametersValues = new List<object>();
+            var actionParameters = actionMethod.GetParameters();
+            foreach (var parameter in actionParameters)
+            {
+                var parameterName = parameter.Name.ToLower();
+                object value = null;
+                if(request.QueryData.Any(x=>x.Key.ToLower() == parameterName))
+                {
+                    value = request.QueryData
+                        .FirstOrDefault(x => x.Key.ToLower() == parameterName).Value;
+                }
+                else if(request.FormData.Any(x => x.Key.ToLower() == parameterName))
+                {
+                    value = request.QueryData
+                       .FirstOrDefault(x => x.Key.ToLower() == parameterName).Value;
+                }
+                actionParametersValues.Add(value);
+            }         
+            var response = actionMethod.Invoke(controller, actionParametersValues.ToArray()) as HttpResponse;
             return response;
         }
 
-        private static void AutoRegisterRoutes(List<Route> routeTable, IMvcApplication application)
+        private static void AutoRegisterRoutes(IList<Route> routeTable, IMvcApplication application)
         {
             var staticFiles = Directory.GetFiles("wwwroot", "*", SearchOption.AllDirectories);
 

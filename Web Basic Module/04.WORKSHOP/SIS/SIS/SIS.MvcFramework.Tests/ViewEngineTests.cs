@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Xunit;
@@ -23,7 +24,8 @@ namespace SIS.MvcFramework.Tests
             var expectedResult = File.ReadAllText($"ViewTests/{testName}Expected.html");
 
             IViewEngine viewEngine = new ViewEngine();
-            var actualResult = viewEngine.GetHtml(viewContent, viewModel);
+            var actualResult = viewEngine.GetHtml(viewContent, viewModel, "123");
+
             ;
             Assert.Equal(expectedResult, actualResult);
         }
@@ -32,7 +34,7 @@ namespace SIS.MvcFramework.Tests
         {
             var viewModel = new List<int> { 1, 2, 3 };
 
-            var viewContent = @"foreach(var num in Model)
+            var viewContent = @"@foreach(var num in Model)
 {
 <p>@num</p>
 }";
@@ -43,9 +45,10 @@ namespace SIS.MvcFramework.Tests
 ";
 
             IViewEngine viewEngine = new ViewEngine();
-            var actualResult = viewEngine.GetHtml(viewContent, viewModel);
+            var actualResult = viewEngine.GetHtml(viewContent, viewModel, null);
             ;
             Assert.Equal(expectedResult, actualResult);
         }
     }
 }
+

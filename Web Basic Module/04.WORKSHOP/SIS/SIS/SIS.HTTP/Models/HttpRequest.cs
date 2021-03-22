@@ -97,16 +97,32 @@ namespace SIS.HTTP.Models
             }
             //creator = Petroslav & tweetName = Hello
             this.Body = HttpUtility.UrlDecode(bb.ToString().TrimEnd('\r', '\n'));
-            var bodyParts = this.Body.Split("&".ToCharArray(),StringSplitOptions.RemoveEmptyEntries);
+            ParseData(this.FormData, this.Body);
 
-            foreach (var bodyPart in bodyParts)
+            this.Query = string.Empty;
+            if (this.Path.Contains("?"))
             {
-                var parameter = bodyPart.Split("=".ToCharArray(), 2);
-                this.FormData.Add(
+                var parts = this.Path.Split(new char[] { '?' }, 2);
+                this.Path = parts[0];
+                this.Query = parts[1];
+            }
+
+            this.QueryData = new Dictionary<string, string>();
+            ParseData(this.QueryData, this.Query);
+
+        }
+
+        private void ParseData(IDictionary<string, string> output,string input)
+        {
+            var dataParts = input.Split("&".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var dataPart in dataParts)
+            {
+                var parameter = dataPart.Split("=".ToCharArray(), 2);
+                output.Add(
                    HttpUtility.UrlDecode(parameter[0]),
                    HttpUtility.UrlDecode(parameter[1]));
             }
-
         }
         public HttpMethodType Method { get; set; }
 
@@ -123,6 +139,10 @@ namespace SIS.HTTP.Models
         public string Body { get; set; }
 
         public IDictionary<string, string> FormData { get; set; }
+
+        public string Query { get; set; }
+
+        public IDictionary<string, string> QueryData { get; set; }
 
     }
 }

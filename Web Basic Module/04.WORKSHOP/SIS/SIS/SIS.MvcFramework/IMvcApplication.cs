@@ -5,8 +5,8 @@ namespace SIS.MvcFramework
 {
     public interface IMvcApplication
     {
+        void ConfigureServices(IServiceCollection serviceCollection);
         void Configure(IList<Route> routeTable);
-        void ConfigureServices();
-        
+
     }
 }

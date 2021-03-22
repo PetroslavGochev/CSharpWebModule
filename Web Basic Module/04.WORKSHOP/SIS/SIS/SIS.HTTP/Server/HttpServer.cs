@@ -1,5 +1,6 @@
 ﻿using SIS.HTTP.Common;
 using SIS.HTTP.Enumerators;
+using SIS.HTTP.Logging;
 using SIS.HTTP.Models;
 using System;
 using System.Collections.Generic;
@@ -15,12 +16,14 @@ namespace SIS.HTTP.Server
     {
         private readonly TcpListener tcpListener;
         private readonly IList<Route> routeTable;
+        private readonly ILogger logger;
         private readonly IDictionary<string, IDictionary<string, string>> session;
 
-        public HttpServer(int port, IList<Route> routeTable)
+        public HttpServer(int port, IList<Route> routeTable, ILogger logger)
         {
             this.tcpListener = new TcpListener(IPAddress.Loopback, port);
             this.routeTable = routeTable;
+            this.logger = logger;
             this.session = new Dictionary<string, IDictionary<string, string>>();
         }
         public async Task ResetAsync()
@@ -99,8 +102,7 @@ namespace SIS.HTTP.Server
                 await networkStream.WriteAsync(responseBytes, 0, responseBytes.Length);
                 await networkStream.WriteAsync(httpResponse.Body, 0, httpResponse.Body.Length);
 
-                Console.WriteLine($"{request.Method} - {request.Path}");
-                Console.WriteLine(new string('=', 60));
+                this.logger.Log($"{request.Method} - {request.Path}");
             }
             catch (Exception ex)
             {

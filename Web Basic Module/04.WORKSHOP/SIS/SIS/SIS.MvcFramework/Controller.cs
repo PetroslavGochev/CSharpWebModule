@@ -1,6 +1,10 @@
-﻿using SIS.HTTP.Response;
+﻿using System;
+using SIS.HTTP;
+using SIS.HTTP.Response;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using System.Text;
 using SIS.HTTP.Models;
 
 namespace SIS.MvcFramework
@@ -32,16 +36,16 @@ namespace SIS.MvcFramework
         protected HttpResponse Redirect(string url)
         {
             return new RedirectResponse(url);
-        }       
+        }
 
         private HttpResponse ViewByName<T>(string viewPath, object viewModel)
         {
             IViewEngine viewEngine = new ViewEngine();
 
             var html = File.ReadAllText(viewPath);
-            html = viewEngine.GetHtml(html, viewModel,this.User);
+            html = viewEngine.GetHtml(html, viewModel, this.User);
 
-            var layout = File.ReadAllText("Views/Shared/_Layout.html");
+            var layout = File.ReadAllText("Views/Shared/layout.html");
             var bodyWithLayout = layout.Replace("@RenderBody()", html);
             bodyWithLayout = viewEngine.GetHtml(bodyWithLayout, viewModel, this.User);
             return new HtmlResponse(bodyWithLayout);
@@ -50,15 +54,20 @@ namespace SIS.MvcFramework
         protected void SignIn(string userId)
         {
             this.Request.SessionData["UserId"] = userId;
+
         }
 
         protected void SignOut()
         {
             this.Request.SessionData["UserId"] = null;
         }
+        protected bool IsUserLoggedIn()
+        {
+            return this.User != null;
+        }
 
-        public string User =>
-            this.Request.SessionData.ContainsKey("UserId") ?
-             this.Request.SessionData["UserId"] : null;
+        public string User => this.Request.SessionData.ContainsKey("UserId") ? this.Request.SessionData["UserId"] : null;
+
+
     }
 }

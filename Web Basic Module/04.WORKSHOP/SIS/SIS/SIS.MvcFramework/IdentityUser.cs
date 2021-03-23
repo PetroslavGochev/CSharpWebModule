@@ -7,17 +7,13 @@ namespace SIS.MvcFramework
         public T Id { get; set; }
 
         [Required]
-        [MinLength(5)]
-        [MaxLength(20)]
+        [MaxLength(20)] 
         public string Username { get; set; }
 
-        [Required]
+        [Required] 
         public string Email { get; set; }
 
-
-        [Required]
-        [MinLength(6)]
-        [MaxLength(20)]
+        [Required] 
         public string Password { get; set; }
 
         public IdentityRole Role { get; set; }

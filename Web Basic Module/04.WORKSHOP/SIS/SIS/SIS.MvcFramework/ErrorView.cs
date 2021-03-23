@@ -1,24 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
-using static SIS.MvcFramework.ViewEngine;
+using System.Threading;
 
 namespace SIS.MvcFramework
 {
     public class ErrorView : IView
     {
-
         private IEnumerable<string> errors;
 
         public ErrorView(IEnumerable<string> errors)
         {
             this.errors = errors;
         }
-        public string GetHtml(object model,string user)
+        public string GetHtml(object model, string user)
         {
             StringBuilder html = new StringBuilder();
             html.AppendLine("<h1>View compilation errors:</h1>");
             html.AppendLine("<ul>");
-            foreach (var error in this.errors)
+            foreach (var error in errors)
             {
                 html.AppendLine($"<li>{error}</li>");
             }

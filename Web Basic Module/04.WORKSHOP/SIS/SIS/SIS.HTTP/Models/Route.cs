@@ -1,21 +1,20 @@
-﻿using SIS.HTTP.Enumerators;
-using System;
+﻿using System;
+using SIS.HTTP.Enumerators;
+using SIS.HTTP.Models;
 
-namespace SIS.HTTP.Models
+namespace SIS.HTTP
 {
     public class Route
     {
-        public Route(HttpMethodType httpMethod,string path, Func<HttpRequest, HttpResponse> action )
+        public Route(string path, HttpMethodType method, Func<HttpRequest, HttpResponse> action)
         {
             this.Path = path;
-            this.HttpMethod = httpMethod;
+            this.HttpMethod = method;
             this.Action = action;
         }
         public string Path { get; set; }
-
         public HttpMethodType HttpMethod { get; set; }
-
-        public Func<HttpRequest,HttpResponse> Action { get; set; }
+        public Func<HttpRequest, HttpResponse> Action { get; set; }
 
         public override string ToString()
         {

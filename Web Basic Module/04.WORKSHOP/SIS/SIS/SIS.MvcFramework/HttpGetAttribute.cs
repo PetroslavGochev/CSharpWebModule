@@ -1,4 +1,6 @@
-﻿using SIS.HTTP.Enumerators;
+﻿using System;
+using SIS.HTTP;
+using SIS.HTTP.Enumerators;
 
 namespace SIS.MvcFramework
 {
@@ -10,7 +12,7 @@ namespace SIS.MvcFramework
         }
 
         public HttpGetAttribute(string url)
-            :base(url)
+        : base(url)
         {
 
         }

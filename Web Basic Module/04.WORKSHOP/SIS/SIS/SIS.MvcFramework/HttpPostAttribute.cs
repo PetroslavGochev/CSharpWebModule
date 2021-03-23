@@ -8,12 +8,14 @@ namespace SIS.MvcFramework
         {
 
         }
+
         public HttpPostAttribute(string url)
-            :base(url)
+        : base(url)
         {
 
         }
 
         public override HttpMethodType Type => HttpMethodType.Post;
     }
+
 }

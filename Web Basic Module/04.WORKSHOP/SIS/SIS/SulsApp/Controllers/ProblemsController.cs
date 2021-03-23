@@ -14,12 +14,20 @@ namespace SulsApp.Controllers
 
         public HttpResponse Create()
         {
+            if (!this.IsUserLoggedIn())
+            {
+                return this.Redirect("/Users/Login");
+            }
             return this.View();
         }
 
         [HttpPost]
         public HttpResponse Create(string name,int points)
         {
+            if (!this.IsUserLoggedIn())
+            {
+                return this.Redirect("/Users/Login");
+            }
             if (string.IsNullOrEmpty(name))
             {
                 return this.Error("Invalid name");

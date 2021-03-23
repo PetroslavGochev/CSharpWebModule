@@ -1,6 +1,6 @@
 ﻿namespace SIS.MvcFramework
 {
-   public  class ErrorViewModel
+    public class ErrorViewModel
     {
         public string Error { get; set; }
     }

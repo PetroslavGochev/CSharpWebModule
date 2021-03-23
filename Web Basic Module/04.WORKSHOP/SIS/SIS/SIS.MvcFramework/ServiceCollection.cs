@@ -8,19 +8,18 @@ namespace SIS.MvcFramework
 {
     public class ServiceCollection : IServiceCollection
     {
-        private IDictionary<Type, Type> dependencyContainer =
-            new ConcurrentDictionary<Type, Type>();
+        private IDictionary<Type, Type> dependancyContainer = new ConcurrentDictionary<Type, Type>();
         public void Add<TSource, TDestination>()
-            where TDestination : TSource
+        where TDestination : TSource
         {
-            this.dependencyContainer[typeof(TSource)] = typeof(TDestination);
+            dependancyContainer[typeof(TSource)] = typeof(TDestination);
         }
 
         public object CreateInstance(Type type)
         {
-            if (dependencyContainer.ContainsKey(type))
+            if (dependancyContainer.ContainsKey(type))
             {
-                type = dependencyContainer[type];
+                type = dependancyContainer[type];
             }
             var constructor = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance)
                 .OrderBy(x => x.GetParameters().Count())
@@ -35,6 +34,8 @@ namespace SIS.MvcFramework
         }
 
         public T CreateInstance<T>()
-                => (T)this.CreateInstance(typeof(T));
+        {
+            return (T)this.CreateInstance(typeof(T));
+        }
     }
 }

@@ -1,15 +1,15 @@
-﻿using SIS.HTTP.Enumerators;
-using SIS.HTTP.Logging;
-using SIS.HTTP.Models;
-using SIS.HTTP.Response;
-using SIS.HTTP.Server;
-using System;
+﻿using System;
+using System.Collections;
+using SIS.HTTP;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
+using SIS.HTTP.Logging;
+using SIS.HTTP.Response;
+using SIS.HTTP.Enumerators;
+using SIS.HTTP.Models;
 
 namespace SIS.MvcFramework
 {
@@ -17,30 +17,26 @@ namespace SIS.MvcFramework
     {
         public static async Task StartAsync(IMvcApplication application)
         {
-            IList<Route> routeTable = new List<Route>();
             IServiceCollection serviceCollection = new ServiceCollection();
             serviceCollection.Add<ILogger, ConsoleLogger>();
-
+            IList<Route> routeTable = new List<Route>();
             application.ConfigureServices(serviceCollection);
             application.Configure(routeTable);
-
-
+            AutoRegisterStaticFilesRoutes(routeTable);
             AutoRegisterActionRoutes(routeTable, application, serviceCollection);
-            AutoRegisterRoutes(routeTable, application);
-
             var logger = serviceCollection.CreateInstance<ILogger>();
-
             logger.Log("Registered routes:");
             foreach (var route in routeTable)
             {
                 logger.Log(route.ToString());
             }
+
             logger.Log(string.Empty);
             logger.Log("Requests:");
-
             var httpServer = new HttpServer(80, routeTable, logger);
             await httpServer.StartAsync();
         }
+
         private static void AutoRegisterActionRoutes(IList<Route> routeTable, IMvcApplication application, IServiceCollection serviceCollection)
         {
             var controllers = application.GetType().Assembly.GetTypes()
@@ -69,9 +65,10 @@ namespace SIS.MvcFramework
                             url = attribute.Url;
                         }
                     }
-                    routeTable.Add(new Route(httpActionType, url, (request) => InvokeAction(request, serviceCollection, controller, action)));
-                }
 
+                    routeTable.Add(new Route(url, httpActionType, (request) => InvokeAction(request, serviceCollection, controller, action)));
+
+                }
             }
         }
         private static HttpResponse InvokeAction(HttpRequest request, IServiceCollection serviceCollection, Type controllerType, MethodInfo actionMethod)
@@ -83,49 +80,54 @@ namespace SIS.MvcFramework
             var actionParameters = actionMethod.GetParameters();
             foreach (var parameter in actionParameters)
             {
-                object value = Convert.ChangeType(GetValueFroemRequest(request, parameter.Name), parameter.ParameterType);
+                object value = Convert.ChangeType(GetValueFromRequest(request, parameter.Name), parameter.ParameterType);
+
                 if (value == null)
                 {
-                    var parameterValue = serviceCollection.CreateInstance(parameter.ParameterType);
-                    foreach (var property in parameter.ParameterType
-                                            .GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                    // if enter here => complex type
+                    var parameterValue = Activator.CreateInstance(parameter.ParameterType);
+                    foreach (var property in parameter.ParameterType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
                     {
-                        var propertyValue = GetValueFroemRequest(request, property.Name);
+                        var propertyValue = GetValueFromRequest(request, property.Name);
                         property.SetValue(parameterValue, Convert.ChangeType(propertyValue, property.PropertyType));
                     }
+
                     actionParametersValues.Add(parameterValue);
+
+                }
+                else
+                {
+                    actionParametersValues.Add(value);
                 }
             }
+
             var response = actionMethod.Invoke(controller, actionParametersValues.ToArray()) as HttpResponse;
+
             return response;
         }
 
-        private static object GetValueFroemRequest(HttpRequest request, string parameterName)
+        private static object GetValueFromRequest(HttpRequest request, string parameterName)
         {
-
             object value = null;
-            parameterName = parameterName.ToLower();
-            if (request.QueryData.Any(x => x.Key.ToLower() == parameterName))
+            if (request.QueryData.Any(x => x.Key.ToLower() == parameterName.ToLower()))
             {
-                value = request.QueryData
-                    .FirstOrDefault(x => x.Key.ToLower() == parameterName).Value;
+                value = request.QueryData.FirstOrDefault(x => x.Key.ToLower() == parameterName.ToLower()).Value;
             }
-            else if (request.FormData.Any(x => x.Key.ToLower() == parameterName))
+            else if (request.FormData.Any(x => x.Key.ToLower() == parameterName.ToLower()))
             {
-                value = request.FormData
-                   .FirstOrDefault(x => x.Key.ToLower() == parameterName).Value;
+                value = request.FormData.FirstOrDefault(x => x.Key.ToLower() == parameterName.ToLower()).Value;
             }
+
             return value;
         }
 
-        private static void AutoRegisterRoutes(IList<Route> routeTable, IMvcApplication application)
+        private static void AutoRegisterStaticFilesRoutes(IList<Route> routeTable)
         {
             var staticFiles = Directory.GetFiles("wwwroot", "*", SearchOption.AllDirectories);
-
             foreach (var staticFile in staticFiles)
             {
                 var path = staticFile.Replace("wwwroot", string.Empty).Replace("\\", "/");
-                routeTable.Add(new Route(HttpMethodType.Get, path, (request) =>
+                routeTable.Add(new Route(path, HttpMethodType.Get, (request) =>
                 {
                     var fileInfo = new FileInfo(staticFile);
                     var contentType = fileInfo.Extension switch
@@ -140,13 +142,11 @@ namespace SIS.MvcFramework
                         ".gif" => "image/gif",
                         _ => "text/plain",
                     };
-                    return new FileResponse(File.ReadAllBytes(staticFile), contentType);
 
+                    return new FileResponse(File.ReadAllBytes(staticFile), contentType);
                 }));
             }
+
         }
     }
 }
-
-
-

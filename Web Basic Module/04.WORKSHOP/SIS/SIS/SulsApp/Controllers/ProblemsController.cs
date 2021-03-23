@@ -17,14 +17,19 @@ namespace SulsApp.Controllers
             return this.View();
         }
 
-        [HttpPost("/Problems/Create")]
-        public HttpResponse DoCreate(string name,string points)
+        [HttpPost]
+        public HttpResponse Create(string name,int points)
         {
-            if(!int.TryParse(points, out int intValue))
+            if (string.IsNullOrEmpty(name))
             {
-                return this.Error("Invalid points");
+                return this.Error("Invalid name");
             }
-            this.problemService.CreateProblem(name, intValue);
+
+            if(points <= 0 || points > 100)
+            {
+                return this.Error("Poits range: [1-100]");
+            }
+            this.problemService.CreateProblem(name, points);
             return this.Redirect("/");
         }
     }

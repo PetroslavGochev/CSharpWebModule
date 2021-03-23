@@ -39,9 +39,8 @@ namespace SulsApp.Services
                 Role = IdentityRole.User
             };
 
-            var db = new SulsAppDbContext();
-            db.Users.Add(user);
-            db.SaveChanges();
+            this.db.Users.Add(user);
+            this.db.SaveChanges();
         }
 
         public string GetUserId(string username, string password)
@@ -52,6 +51,12 @@ namespace SulsApp.Services
                 .Select(u => u.Id)
                 .FirstOrDefault();
         }
+
+        public bool IsEmailUsed(string email)
+                    => this.db.Users.Any(u => u.Email == email);
+
+        public bool IsUsernameUsed(string username)
+                    => this.db.Users.Any(u => u.Username == username);
 
         private string Hash(string input)
         {

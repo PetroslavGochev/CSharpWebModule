@@ -84,7 +84,7 @@ namespace SIS.MvcFramework
                     var parameterValue = Activator.CreateInstance(parameter.ParameterType);
                     foreach (var property in parameter.ParameterType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
                     {
-                        var propertyValue = GetValueFromRequest(request, propertyName);
+                        var propertyValue = GetValueFromRequest(request, property.Name);
                         property.SetValue(parameterValue, Convert.ChangeType(propertyValue, property.PropertyType));
                     }
 

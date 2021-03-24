@@ -1,46 +1,48 @@
-﻿using SIS.HTTP.Common;
-using SIS.HTTP.Enumerators;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Text;
 using System.Web;
 
-namespace SIS.HTTP.Models
+namespace SIS.HTTP
 {
     public class HttpRequest
     {
+        public HttpRequest()
+        {
+                
+        }
         public HttpRequest(string httpRequestAsString)
         {
             this.Headers = new List<Header>();
             this.Cookies = new List<Cookie>();
             this.SessionData = new Dictionary<string, string>();
             this.FormData = new Dictionary<string, string>();
+            //StringReader reader = new StringReader(httpRequestAsString);
+            //reader.ReadLine();
 
-            var lines = httpRequestAsString
-                .Split(new string[] { HttpConstants.NEW_LINE }, StringSplitOptions.None);
+            var lines = httpRequestAsString.Split(new string[] { HttpConstants.NewLine }, StringSplitOptions.None);
 
-            var httpHeaderInfo = lines[0].Split(' ');
-
-            if (httpHeaderInfo.Length != 3)
+            var httpInfoHeader = lines[0];
+            var infoHeaderParts = httpInfoHeader.Split(' ');
+            if (infoHeaderParts.Length != 3)
             {
-                throw new HttpExceptions("Invalid HTTP header line");
+                throw new HttpServerException("Invalid HTTP header line!");
             }
 
-            var httpMethod = httpHeaderInfo[0];
-
+            var httpMethod = infoHeaderParts[0];
+            //Enum.TryParse(httpMethod, out HttpMethodType type);
             this.Method = httpMethod switch
             {
-                "GET" => HttpMethodType.Get,
                 "POST" => HttpMethodType.Post,
-                "PUT" => HttpMethodType.Put,
+                "GET" => HttpMethodType.Get,
                 "DELETE" => HttpMethodType.Delete,
+                "PUT" => HttpMethodType.Put,
                 _ => HttpMethodType.Unknown
             };
 
-            this.Path = httpHeaderInfo[1];
+            this.Path = infoHeaderParts[1];
 
-            var httpVersion = httpHeaderInfo[2];
+            var httpVersion = infoHeaderParts[2];
             this.Version = httpVersion switch
             {
                 "HTTP/1.0" => HttpVersionType.Http10,
@@ -48,58 +50,57 @@ namespace SIS.HTTP.Models
                 "HTTP/2.0" => HttpVersionType.Http20,
                 _ => HttpVersionType.Http11
             };
-
-            bool IsHeader = true;
-            StringBuilder bb = new StringBuilder();
+            bool isInHeader = true;
+            StringBuilder bodyBuilder = new StringBuilder();
             for (int i = 1; i < lines.Length; i++)
             {
-                if (string.IsNullOrWhiteSpace(lines[i]))
+                var line = lines[i];
+                if (String.IsNullOrWhiteSpace(line))
                 {
-                    IsHeader = false;
+                    isInHeader = false;
                     continue;
                 }
-                if (IsHeader)
+                if (isInHeader)
                 {
-                    var headerInfo = lines[i]
-                        .Split(": ".ToCharArray(), 2, StringSplitOptions.None);
-                    if (headerInfo.Length != 2)
+                    var headerParts = line.Split(new string[] { ": " }, 2, StringSplitOptions.None);
+                    if (headerParts.Length != 2)
                     {
-                        throw new HttpExceptions($"Invalid header: {lines[i]}");
+                        throw new HttpServerException($"Invalid header: {line}");
                     }
-                    var haeder = new Header(headerInfo[0], headerInfo[1]);
-                    this.Headers.Add(haeder);
 
-                    if (headerInfo[0] == "Cookie")
+                    var header = new Header(headerParts[0], headerParts[1]);
+                    this.Headers.Add(header);
+
+                    if (headerParts[0] == "Cookie")
                     {
-                        var cookieAsString = headerInfo[1];
-                        var cookies = cookieAsString
-                            .Split("; ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                        var cookiesAsString = headerParts[1];
+                        var cookies = cookiesAsString.Split(new string[] { "; " }, StringSplitOptions.RemoveEmptyEntries);
 
                         foreach (var cookie in cookies)
                         {
-                            var cookieParts = cookie.Split("=".ToCharArray(), 2);
+                            var cookieParts = cookie.Split(new char[] { '=' }, 2);
                             if (cookieParts.Length == 2)
                             {
-                                this.Cookies.Add(new Cookie(cookieParts[0], cookieParts[1]));
+                                this.Cookies.Add(new Cookie
+                                    (cookieParts[0], cookieParts[1]));
                             }
+
                         }
                     }
                 }
                 else
                 {
-                    bb.AppendLine(lines[i]);
+                    bodyBuilder.AppendLine(line);
                 }
-
             }
-            if (!String.IsNullOrEmpty(bb.ToString()))
-            {
-                this.Body = bb.ToString();
-            }
-            //creator = Petroslav & tweetName = Hello
-            this.Body = HttpUtility.UrlDecode(bb.ToString().TrimEnd('\r', '\n'));
-            ParseData(this.FormData, this.Body);
 
+            this.Body = bodyBuilder.ToString().TrimEnd('\r', '\n');
+            this.FormData = new Dictionary<string, string>();
+            ParseDate(this.FormData, this.Body);
+
+            this.QueryData = new Dictionary<string, string>();
             this.Query = string.Empty;
+
             if (this.Path.Contains("?"))
             {
                 var parts = this.Path.Split(new char[] { '?' }, 2);
@@ -107,42 +108,38 @@ namespace SIS.HTTP.Models
                 this.Query = parts[1];
             }
 
-            this.QueryData = new Dictionary<string, string>();
-            ParseData(this.QueryData, this.Query);
+            ParseDate(this.QueryData, this.Query);
 
         }
 
-        private void ParseData(IDictionary<string, string> output,string input)
+        private void ParseDate(IDictionary<string, string> output, string input)
         {
             var dataParts = input.Split("&".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
             foreach (var dataPart in dataParts)
             {
-                var parameter = dataPart.Split("=".ToCharArray(), 2);
+                var parameters = dataPart.Split(new char[] { '=' }, 2);
                 output.Add(
-                   HttpUtility.UrlDecode(parameter[0]),
-                   HttpUtility.UrlDecode(parameter[1]));
+                    HttpUtility.UrlDecode(parameters[0]),
+                    HttpUtility.UrlDecode(parameters[1]));
             }
         }
+
         public HttpMethodType Method { get; set; }
-
         public string Path { get; set; }
-
         public HttpVersionType Version { get; set; }
 
         public IList<Header> Headers { get; set; }
-
         public IList<Cookie> Cookies { get; set; }
+
+        public string Body { get; set; }
+        public string Query { get; set; }
+
+        public IDictionary<string, string> FormData { get; set; }
+        public IDictionary<string, string> QueryData { get; set; }
 
         public IDictionary<string, string> SessionData { get; set; }
 
-        public string Body { get; set; }
-
-        public IDictionary<string, string> FormData { get; set; }
-
-        public string Query { get; set; }
-
-        public IDictionary<string, string> QueryData { get; set; }
 
     }
+
 }

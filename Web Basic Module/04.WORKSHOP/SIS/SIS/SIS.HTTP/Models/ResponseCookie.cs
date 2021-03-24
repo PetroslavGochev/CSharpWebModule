@@ -1,67 +1,57 @@
-﻿using SIS.HTTP.Enumerators;
-using System;
+﻿using System;
 using System.Text;
 
-namespace SIS.HTTP.Models
+namespace SIS.HTTP
 {
     public class ResponseCookie : Cookie
     {
-        public ResponseCookie(string name, string value)
-            : base(name, value)
+        public ResponseCookie(string name, string value) :
+            base(name, value)
         {
+            this.SameSiteType = SameSiteType.None;
             this.Path = "/";
             this.Expires = DateTime.UtcNow.AddDays(30);
-            this.SameSite = SameSiteType.None;
         }
         public string Domain { get; set; }
-
         public string Path { get; set; }
-
         public DateTime? Expires { get; set; }
-
         public long? MaxAge { get; set; }
-
         public bool Secure { get; set; }
-
         public bool HttpOnly { get; set; }
-
-        public SameSiteType SameSite { get; set; }
+        public SameSiteType SameSiteType { get; set; }
 
         public override string ToString()
         {
-            StringBuilder cb = new StringBuilder();
-
-            cb.Append($"{this.Name}={this.Value}");
+            var cookieBuilder = new StringBuilder();
+            cookieBuilder.Append($"{this.Name} {this.Value}");
             if (this.MaxAge.HasValue)
             {
-                cb.Append($"; MaxAge={this.MaxAge.Value.ToString()}");
+                cookieBuilder.Append($"; Max-Age=" + this.MaxAge.Value.ToString());
             }
             else if (this.Expires.HasValue)
             {
-                cb.Append($"; Expires={this.Expires.Value.ToString("R")}");
+                cookieBuilder.Append($"; Expires=" + this.Expires.Value.ToString("R"));
             }
 
-            if (!string.IsNullOrWhiteSpace(this.Domain))
+            if (!String.IsNullOrWhiteSpace(this.Domain))
             {
-                cb.Append($"; Domain={this.Domain.ToString()}");
+                cookieBuilder.Append($"; Domain=" + this.Domain);
             }
-
-            if (!string.IsNullOrWhiteSpace(this.Path))
+            if (!String.IsNullOrWhiteSpace(this.Path))
             {
-                cb.Append($"; Path={this.Path.ToString()}");
+                cookieBuilder.Append($"; Path=" + this.Path);
             }
-
             if (this.Secure)
             {
-                cb.Append($"; Secure");
+                cookieBuilder.Append($"; Secure");
             }
             if (this.HttpOnly)
             {
-                cb.Append($"; HttpOnly");
+                cookieBuilder.Append($"; HttpOnly");
             }
+            cookieBuilder.Append($"; SameSite=" + this.SameSiteType.ToString());
 
-            cb.Append($"; SameSite={this.SameSite.ToString()}");
-            return cb.ToString();
+            return cookieBuilder.ToString();
         }
     }
 }

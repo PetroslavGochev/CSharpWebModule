@@ -1,8 +1,8 @@
-﻿namespace SIS.HTTP.Common
+﻿namespace SIS.HTTP
 {
     public static class HttpConstants
     {
-       public const string NEW_LINE = "\r\n";
-       public const string COOKIE_NAME = "SIS_SESSION";
+        public const string NewLine = "\r\n";
+        public const string SessionIdCookieName = "SIS_SESSION";
     }
 }

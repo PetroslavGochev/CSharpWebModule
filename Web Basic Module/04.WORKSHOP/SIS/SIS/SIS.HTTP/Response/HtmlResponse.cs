@@ -1,5 +1,4 @@
 ﻿using SIS.HTTP.Enumerators;
-using SIS.HTTP.Models;
 using System.Text;
 
 namespace SIS.HTTP.Response
@@ -10,10 +9,10 @@ namespace SIS.HTTP.Response
             : base()
         {
             this.StatusCode = HttpResponseCode.OK;
-            byte[] byteData = Encoding.UTF8.GetBytes(html);
-            this.Body = byteData;
+            byte[] stringContent = Encoding.UTF8.GetBytes(html);
+            this.Body = stringContent;
             this.Headers.Add(new Header("Content-Type", "text/html"));
-            this.Headers.Add(new Header("Content-Type", this.Body.Length.ToString()));
+            this.Headers.Add(new Header("Content-Length", this.Body.Length.ToString()));
         }
     }
 }

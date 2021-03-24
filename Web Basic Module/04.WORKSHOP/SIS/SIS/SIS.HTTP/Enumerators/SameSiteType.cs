@@ -1,9 +1,9 @@
-﻿namespace SIS.HTTP.Enumerators
+﻿namespace SIS.HTTP
 {
     public enum SameSiteType
     {
-        Lax = 1,
-        Strict = 2,
-        None = 3
+        None = 1,
+        Lax = 2,
+        Strict = 3,
     }
 }

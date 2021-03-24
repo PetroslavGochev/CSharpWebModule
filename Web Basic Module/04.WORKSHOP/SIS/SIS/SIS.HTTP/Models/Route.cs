@@ -1,6 +1,4 @@
 ﻿using System;
-using SIS.HTTP.Enumerators;
-using SIS.HTTP.Models;
 
 namespace SIS.HTTP
 {

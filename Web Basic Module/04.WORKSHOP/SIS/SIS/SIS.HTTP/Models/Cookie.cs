@@ -1,8 +1,8 @@
-﻿namespace SIS.HTTP.Models
+﻿namespace SIS.HTTP
 {
     public class Cookie
     {
-        public Cookie(string name,string value)
+        public Cookie(string name, string value)
         {
             this.Name = name;
             this.Value = value;

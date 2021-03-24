@@ -1,4 +1,5 @@
-﻿using SIS.HTTP.Enumerators;
+﻿using SIS.HTTP;
+using SIS.HTTP.Enumerators;
 
 namespace SIS.MvcFramework
 {

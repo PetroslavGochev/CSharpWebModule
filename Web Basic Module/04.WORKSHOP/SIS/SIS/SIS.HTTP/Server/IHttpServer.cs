@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace SIS.HTTP.Server
+namespace SIS.HTTP
 {
+
     public interface IHttpServer
     {
         Task StartAsync();

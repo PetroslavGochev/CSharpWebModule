@@ -1,13 +1,12 @@
-﻿using SIS.HTTP.Logging;
-using System.IO;
+﻿using System.IO;
 
-namespace SulsApp.Services
+namespace SIS.HTTP.Logging
 {
     public class FileLogger : ILogger
     {
         public void Log(string message)
         {
-            File.AppendAllLines("log.txt",new[] { message});
+            File.AppendAllLines("log.txt", new[] { message });
         }
     }
 }

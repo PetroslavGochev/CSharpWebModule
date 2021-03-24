@@ -1,13 +1,13 @@
 ﻿using System;
 
-namespace SIS.HTTP.Common
+namespace SIS.HTTP
 {
-    public class HttpExceptions : Exception
+    public class HttpServerException : Exception
     {
-        public HttpExceptions(string message)
-            :base(message)
+        public HttpServerException(string message)
+        : base(message)
         {
-            
+
         }
     }
 }

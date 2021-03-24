@@ -1,5 +1,5 @@
-﻿using SIS.HTTP.Logging;
-using SIS.HTTP.Models;
+﻿using SIS.HTTP;
+using SIS.HTTP.Logging;
 using SIS.MvcFramework;
 using SulsApp.ViewModels;
 using System;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using SIS.HTTP;
 using System.Collections.Generic;
 using System.IO;
@@ -8,8 +7,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using SIS.HTTP.Logging;
 using SIS.HTTP.Response;
-using SIS.HTTP.Enumerators;
-using SIS.HTTP.Models;
 
 namespace SIS.MvcFramework
 {
@@ -82,13 +79,12 @@ namespace SIS.MvcFramework
             {
                 object value = Convert.ChangeType(GetValueFromRequest(request, parameter.Name), parameter.ParameterType);
 
-                if (value == null)
+                if (value == null && parameter.ParameterType != typeof(string))
                 {
-                    // if enter here => complex type
                     var parameterValue = Activator.CreateInstance(parameter.ParameterType);
                     foreach (var property in parameter.ParameterType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
                     {
-                        var propertyValue = GetValueFromRequest(request, property.Name);
+                        var propertyValue = GetValueFromRequest(request, propertyName);
                         property.SetValue(parameterValue, Convert.ChangeType(propertyValue, property.PropertyType));
                     }
 

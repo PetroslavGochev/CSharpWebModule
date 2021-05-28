@@ -1,8 +1,10 @@
 ﻿namespace MyWebServer.Service.Http
 {
+    using MyWebServer.Service.Common;
     using MyWebServer.Service.Http.Enums;
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     public class HttpRequest
     {
@@ -11,9 +13,75 @@
 
         public string Path { get; private set; }
 
-        public Dictionary<string, HttpHeader> Header 
-        { get; } = new Dictionary<string, HttpHeader>();
+        public HttpHeaderCollection Header { get; private set; }
 
         public string Body { get; private set; }
+
+        public static HttpRequest Parse(string request)
+        {
+            var lines = request.Split(GlobalConstants.NEW_LINE);
+
+            var startLine = lines.First().Split(" ");
+
+            var method = HttpMethodParse(startLine[0]);
+
+            var url = startLine[1];
+
+            var headers = HttpParseHeaderCollection(lines.Skip(1));
+
+            var bodyLines = lines.Skip(headers.Count + 2).ToArray();
+
+            var body = string.Join(string.Empty, bodyLines);
+
+            return new HttpRequest
+            {
+                Method = method,
+                Path = url,
+                Header = headers,
+                Body = body,
+            };
+        }
+
+        private static HttpHeaderCollection HttpParseHeaderCollection(IEnumerable<string> headerLines)
+        {
+            var headerCollection = new HttpHeaderCollection();
+
+            foreach (var headerLine in headerLines)
+            {
+                if (headerLine == string.Empty)
+                {
+                    break;
+                }
+
+                var headerParts = headerLine.Split(":",2);
+
+                if (headerParts.Length != 2)
+                {
+                    throw new InvalidOperationException("Invalid Request");
+                }
+
+                var header = new HttpHeader
+                {
+                    Name = headerParts[0],
+                    Value = headerParts[1].Trim(),
+                };
+
+                headerCollection.Add(header);
+            }
+
+            return headerCollection;
+        }
+
+        private static HttpMethod HttpMethodParse(string method)
+        {
+            return method.ToUpper() switch
+            {
+                "GET" => HttpMethod.Get,
+                "POST" => HttpMethod.Post,
+                "PUT" => HttpMethod.Put,
+                "DELETE" => HttpMethod.Delete,
+                _ => throw new InvalidOperationException("Invalid method")
+            };
+        }
     }
 }

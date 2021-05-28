@@ -1,5 +1,6 @@
 ﻿namespace MyWebServer.Service
 {
+    using MyWebServer.Service.Http;
     using System;
     using System.Net;
     using System.Net.Sockets;
@@ -33,14 +34,15 @@
 
                 var networkStream = connection.GetStream();
 
-                var request = await ReadRequest(networkStream);
+                var requestText = await ReadRequest(networkStream);
 
-                Console.WriteLine(request);
+                Console.WriteLine(requestText);
+
+                var request = HttpRequest.Parse(requestText);
 
                 await WriteResponse(networkStream);
 
-                connection.Close();
-
+                connection.Close();                
             }
         }
 
@@ -72,6 +74,8 @@ Content-type: text/html; charset=UTF-8
         {
             var bufferLenght = 1024;
 
+            var totalByte = 0;
+
             var buffer = new byte[bufferLenght];
 
             var requestBuilder = new StringBuilder();
@@ -79,6 +83,13 @@ Content-type: text/html; charset=UTF-8
             while (networkStream.DataAvailable)
             {
                 var byteRead = await networkStream.ReadAsync(buffer, 0, bufferLenght);
+
+                totalByte += byteRead;
+
+                if (totalByte > 10 * 1024)
+                {
+                    throw new InvalidOperationException("Request is too large");
+                }
 
                 requestBuilder.Append(Encoding.UTF8.GetString(buffer, 0, bufferLenght));
             }

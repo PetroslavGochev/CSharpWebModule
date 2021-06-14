@@ -1,8 +1,9 @@
 ﻿namespace MyWebServer.Service.Http
 {
+    using System.Collections;
     using System.Collections.Generic;
 
-    public class HttpHeaderCollection
+    public class HttpHeaderCollection : IEnumerable<HttpHeader>
     {
         private readonly Dictionary<string, HttpHeader> headers;
 
@@ -14,8 +15,17 @@
         public int Count
             => this.headers.Count;
 
-        public void Add(HttpHeader httpHeader)
-            => this.headers.Add(httpHeader.Name, httpHeader);
+        public void Add(string name, string value)
+        {
+            var header = new HttpHeader(name, value);
 
+            this.headers.Add(name, header);
+        }
+
+        public IEnumerator<HttpHeader> GetEnumerator()
+            => this.headers.Values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator()
+            => this.GetEnumerator();
     }
 }

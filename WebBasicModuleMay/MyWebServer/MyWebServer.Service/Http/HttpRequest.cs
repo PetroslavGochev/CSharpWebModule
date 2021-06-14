@@ -53,20 +53,19 @@
                     break;
                 }
 
-                var headerParts = headerLine.Split(":",2);
+                var headerParts = headerLine.Split(":", 2);
 
                 if (headerParts.Length != 2)
                 {
                     throw new InvalidOperationException("Invalid Request");
                 }
 
-                var header = new HttpHeader
-                {
-                    Name = headerParts[0],
-                    Value = headerParts[1].Trim(),
-                };
+                var headerName = headerParts[0];
+                var headerValue = headerParts[1].Trim();
 
-                headerCollection.Add(header);
+                var header = new HttpHeader(headerName, headerValue);
+
+                headerCollection.Add(headerName, headerValue);
             }
 
             return headerCollection;

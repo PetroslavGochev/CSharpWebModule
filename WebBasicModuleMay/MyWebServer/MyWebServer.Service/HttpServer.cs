@@ -1,6 +1,7 @@
 ﻿namespace MyWebServer.Service
 {
     using MyWebServer.Service.Http;
+    using MyWebServer.Service.Routing;
     using System;
     using System.Net;
     using System.Net.Sockets;
@@ -13,12 +14,22 @@
         private readonly int  port;
         private readonly TcpListener tcpListener;
 
-        public HttpServer(string address, int port)
+        public HttpServer(string address, int port, Action<IRoutingTable> routingTable)
         {
             this.ipAddress = IPAddress.Parse(address);
             this.port = port;
 
             this.tcpListener = new TcpListener(this.ipAddress, port);
+        }
+
+        public HttpServer(int port, Action<IRoutingTable> routingTable) :
+            this("127.0.0.1", port, routingTable)
+        {
+        }
+
+        public HttpServer(Action<IRoutingTable> routingTable) :
+            this(5000, routingTable)
+        {
         }
 
         public async Task Start()
@@ -61,7 +72,8 @@
             var contentLenght = Encoding.UTF8.GetByteCount(content);
 
             var response = $@"HTTP/1.1 200 OK
- Date: {DateTime.Now}
+Server: My Web Server
+Date: {DateTime.Now}
 Content-type: text/html; charset=UTF-8
 {content}
 ";

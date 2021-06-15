@@ -4,4 +4,8 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Controllers\Controller.cs~RF1066e03b.TMP" />
+  </ItemGroup>
+
 </Project>

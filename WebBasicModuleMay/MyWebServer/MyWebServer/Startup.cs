@@ -1,17 +1,20 @@
 ﻿namespace MyWebServer
 {
-    using MyWebServer.Service;
-    using MyWebServer.Service.Results;
-    using System;
     using System.Threading.Tasks;
+
+    using MyWebServer.Service;
+    using MyWebServer.Service.Controllers;
+    using MyWebServer.Controllers;
 
     public class Startup
     {
-        public static async Task Main(string[] args)
+        public static async Task Main()
                 => await new HttpServer(routes => routes
-                    .MapGet("/", new TextResponse("Hello"))
-                    .MapGet("/Cats", new TextResponse("Hello cat"))
-                    .MapGet("/Dogs", new TextResponse("Hello dog")))
-                  .Start();
+                    .MapGet<HomeController>("/", c => c.Index())
+                    .MapGet<HomeController>("/Softuni", c => c.ToSoftUni())
+                    .MapGet<HomeController>("/ToCats", c => c.LocalRedirect())
+                    .MapGet<AnimalsController>("/Cats", c => c.Cats())
+                    .MapGet<AnimalsController>("/Dogs", c => c.Dogs()))
+                   .Start();
     }
 }

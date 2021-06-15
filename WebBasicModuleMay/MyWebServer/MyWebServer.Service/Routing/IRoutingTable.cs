@@ -8,5 +8,7 @@
         IRoutingTable Map(string url, HttpMethod method, HttpResponse response);
 
         IRoutingTable MapGet(string url, HttpResponse resposne);
+
+        HttpResponse MatchRequest(HttpRequest request);
     }
 }

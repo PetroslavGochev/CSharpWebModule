@@ -1,12 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net5.0</TargetFramework>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\MyWebServer.Service\MyWebServer.Service.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\MyWebServer.Service\MyWebServer.Service.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="Views\**\*.*">
+			<CopyToOutputDirectory>PreserveNewset</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Views\Animals\Cats.cshtml" />
+	  <None Remove="Views\Animals\Dog.cshtml" />
+	  <None Remove="Views\Animals\Rabbits.cshtml" />
+	  <None Remove="Views\Cats\Create.cshtml" />
+	</ItemGroup>
 
 </Project>

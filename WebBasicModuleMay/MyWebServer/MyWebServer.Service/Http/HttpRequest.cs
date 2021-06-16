@@ -1,10 +1,11 @@
 ﻿namespace MyWebServer.Service.Http
 {
-    using MyWebServer.Service.Common;
-    using MyWebServer.Service.Http.Enums;
     using System;
     using System.Collections.Generic;
     using System.Linq;
+
+    using MyWebServer.Service.Common;
+    using MyWebServer.Service.Http.Enums;
 
     public class HttpRequest
     {
@@ -12,9 +13,11 @@
 
         public string Path { get; private set; }
 
-        public Dictionary<string, string> Query { get; private set; }
+        public IReadOnlyDictionary<string, string> Query { get; private set; }
 
-        public HttpHeaderCollection Header { get; private set; }
+        public IReadOnlyDictionary<string, string> Form { get; private set; }
+
+        public IReadOnlyDictionary<string, HttpHeader> Headers { get; private set; }
 
         public string Body { get; private set; }
 
@@ -36,13 +39,28 @@
 
             var body = string.Join(string.Empty, bodyLines);
 
+            var form = ParseForm(headers, body);
+
             return new HttpRequest
             {
                 Method = method,
                 Path = path,
-                Header = headers,
+                Headers = headers,
+                Query = query,
                 Body = body,
             };
+        }
+
+        private static Dictionary<string, string> ParseForm(Dictionary<string, HttpHeader> headers, string body)
+        {
+            var result = new Dictionary<string, string>();
+            if (headers.ContainsKey(HttpHeader.ContentType)
+                 && headers[HttpHeader.ContentType].Value == HttpContentType.FormUrlEncoded)
+            {
+                result = ParseQuery(body);
+            }
+
+            return result;
         }
 
         // /Cats?name=Ivan&Age=5
@@ -51,24 +69,24 @@
             var urlParts = url.Split("?");
 
             var path = urlParts[0];
-            var query = urlParts.Length > 1 
+            var query = urlParts.Length > 1
                 ? ParseQuery(urlParts[1])
                 : new Dictionary<string, string>();
 
             return (path, query);
         }
 
-        private static Dictionary<string, string> ParseQuery(string queryString)       
+        private static Dictionary<string, string> ParseQuery(string queryString)
                => queryString
                     .Split('&')
                     .Select(part => part.Split("="))
                     .Where(part => part.Length == 2)
                     .ToDictionary(part => part[0], part => part[1]);
-           
 
-        private static HttpHeaderCollection HttpParseHeaderCollection(IEnumerable<string> headerLines)
+
+        private static Dictionary<string, HttpHeader> HttpParseHeaderCollection(IEnumerable<string> headerLines)
         {
-            var headerCollection = new HttpHeaderCollection();
+            var headerCollection = new Dictionary<string, HttpHeader>();
 
             foreach (var headerLine in headerLines)
             {
@@ -89,7 +107,7 @@
 
                 var header = new HttpHeader(headerName, headerValue);
 
-                headerCollection.Add(headerName, headerValue);
+                headerCollection.Add(headerName, new HttpHeader(headerName, headerValue));
             }
 
             return headerCollection;

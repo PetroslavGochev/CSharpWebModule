@@ -51,16 +51,60 @@
 
                 var requestText = await ReadRequest(networkStream);
 
-                Console.WriteLine(requestText);
+                try
+                {
+                    var request = HttpRequest.Parse(requestText);
 
-                var request = HttpRequest.Parse(requestText);
+                    var response = this.routingTable.ExecuteRequest(request);
 
-                var response = this.routingTable.ExecuteRequest(request);
+                    this.PrepareSession(request, response);
 
-                await WriteResponse(networkStream, response);
+                    this.LogPipeLine(request, response);
+
+                    await WriteResponse(networkStream, response);
+                }
+                catch (Exception ex)
+                {
+                    await HandleError(networkStream, ex);
+                }
 
                 connection.Close();                
             }
+        }
+
+        private void LogPipeLine(HttpRequest request, HttpResponse response)
+        {
+            var separator = new string('-', 50);
+
+            var log = new StringBuilder();
+
+            log.AppendLine();
+            log.AppendLine(separator);
+
+            log.AppendLine("REQUEST:");
+            log.AppendLine(request.ToString());
+
+            log.AppendLine();
+
+            log.AppendLine("RESPONSE:");
+            log.AppendLine(response.ToString());
+
+            log.AppendLine();
+
+            Console.WriteLine(log);
+        }
+
+        private static async Task HandleError(NetworkStream networkStream, Exception ex)
+        {
+            var errorMessage = $"{ex.Message} {Environment.NewLine} {ex.StackTrace}";
+            var errorResponse = HttpResponse.ForError(errorMessage);
+
+            await WriteResponse(networkStream, errorResponse);
+        }
+
+        private void PrepareSession(HttpRequest request, HttpResponse response)
+        {
+            response.AddCookie(HttpSession.SessionCookieName, request.Session.Id);
         }
 
         private static async Task WriteResponse(

@@ -1,19 +1,24 @@
-﻿namespace MyWebServer.Service.Response
+﻿namespace MyWebServer.Service.Results
 {
     using System.IO;
     using System.Linq;
 
     using MyWebServer.Service.Http;
     using MyWebServer.Service.Http.Enums;
+    using MyWebServer.Service.Result;
 
-    public class ViewResponse : HttpResponse
+    public class ViewResult : ActionResult
     {
         private const char PathSeparator = '/';
 
-        public ViewResponse(string viewPath, string controllerName, object model) 
-            : base(HttpStatusCode.Ok)
+        public ViewResult(
+            HttpResponse response,
+            string viewName,
+            string controllerName,
+            object model) 
+            : base(response)
         {
-            this.GetHtml(viewPath, controllerName, model);
+            this.GetHtml(viewName, controllerName, model);
         }
 
         private void GetHtml(string viewName, string controllerName, object model)

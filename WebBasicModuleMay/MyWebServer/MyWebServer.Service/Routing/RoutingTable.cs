@@ -6,7 +6,7 @@
     using MyWebServer.Service.Common;
     using MyWebServer.Service.Http;
     using MyWebServer.Service.Http.Enums;
-    using MyWebServer.Service.Response;
+    using MyWebServer.Service.Results;
 
     public class RoutingTable : IRoutingTable
     {
@@ -75,7 +75,7 @@
             if (!this.routes.ContainsKey(reqestMethod) 
                 || this.routes[reqestMethod].ContainsKey(requestPath))
             {
-                return new NotFoundResponse();
+                return new HttpResponse(HttpStatusCode.NotFound);
             }
 
             var responseFunction = this.routes[reqestMethod][requestPath];

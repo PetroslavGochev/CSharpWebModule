@@ -16,7 +16,7 @@
             => this.Text("Hello");
 
         public HttpResponse LocalRedirect()
-           => this.Redirect("/Cats");
+           => this.Redirect("/Animals/Cats");
 
         public HttpResponse ToSoftUni()
             => this.Redirect("https://softuni.bg");

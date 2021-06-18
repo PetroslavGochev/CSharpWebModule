@@ -2,11 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
 
     using MyWebServer.Service.Common;
     using MyWebServer.Service.Http;
     using MyWebServer.Service.Http.Enums;
-    using MyWebServer.Service.Results;
 
     public class RoutingTable : IRoutingTable
     {
@@ -81,6 +81,34 @@
             var responseFunction = this.routes[reqestMethod][requestPath];
 
             return responseFunction(request);
+        }
+
+        public IRoutingTable MapStaticFiles()
+        {
+            var currentDirectory = Directory.GetCurrentDirectory();
+            var staticFilesFolder = Path.Combine(currentDirectory, GlobalConstants.StaticFilesRootFolder);
+            var staticFiles = Directory.GetFiles(
+                Path.Combine(currentDirectory, GlobalConstants.StaticFilesRootFolder), "*.*",
+                SearchOption.AllDirectories);
+
+            foreach (var file in staticFiles)
+            {
+                var relativePaht = Path.GetRelativePath(staticFilesFolder, file);
+
+                var urlPath = "/" + relativePaht.Replace("\\", "/");
+
+                this.MapGet(urlPath, request =>
+                {
+                    var content = File.ReadAllText(file);
+                    var fileExtension = Path.GetExtension(file).Trim('.');
+                    var contentType = HttpContentType.GetByFileExtension(fileExtension);
+
+                    return new HttpResponse(HttpStatusCode.Ok)
+                    .SetContent(content, contentType);
+                });
+            }
+
+            return this;
         }
     }
 }

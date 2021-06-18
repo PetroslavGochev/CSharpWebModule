@@ -7,6 +7,8 @@
 
     public interface IRoutingTable
     {
+        IRoutingTable MapStaticFiles();
+
         IRoutingTable Map(HttpMethod method, string path, HttpResponse response);
 
         IRoutingTable Map(HttpMethod method, string path, Func<HttpRequest, HttpResponse> responseFunction);
